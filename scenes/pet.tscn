@@ -1,6 +1,17 @@
-[gd_scene load_steps=2 format=3 uid="uid://dus4jroxi2ioo"]
+[gd_scene load_steps=3 format=3 uid="uid://dus4jroxi2ioo"]
 
 [ext_resource type="Script" uid="uid://do8t24yox3675" path="res://scripts/pet.gd" id="1_mdqe4"]
+[ext_resource type="Shape2D" uid="uid://jpjq1ic4gnis" path="res://resources/pet_hitbox.tres" id="2_8wqpi"]
 
 [node name="Pet" type="CharacterBody2D"]
 script = ExtResource("1_mdqe4")
+
+[node name="CollisionBox" type="CollisionShape2D" parent="."]
+shape = ExtResource("2_8wqpi")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+
+[node name="TickTime" type="Timer" parent="."]
+autostart = true
+
+[connection signal="timeout" from="TickTime" to="." method="_on_tick"]
