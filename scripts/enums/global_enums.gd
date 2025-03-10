@@ -1,6 +1,18 @@
 extends RefCounted
-class_name Gender
+class_name GlobalEnums
 
-const NONE = 0
-const MALE = 1
-const FEMALE = 2
+## Represents pet (or entity)'s gender. If set to NONE, they will be genderless.
+enum Gender {
+	NONE,
+	MALE,
+	FEMALE
+}
+
+## Represents a flavor. Foods can have more than one flavor assigned.
+enum Flavor {
+	SPICY,
+	DRY,
+	SWEET,
+	BITTER,
+	SOUR
+}
