@@ -31,9 +31,9 @@ extends Resource
 
 ## Biology and physical traits.
 @export_category("Biology")
-## The average weight of this species.
+## The average weight of this species (in kilograms).
 @export var average_weight: float = 1.0
-## The average height of this species.
+## The average height of this species (in meters).
 @export var average_height: float = 1.0
 ## The possible height mutation when one hatches.
 @export var height_mutation: float = 0.0
