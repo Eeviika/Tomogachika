@@ -47,9 +47,9 @@ extends Resource
 ## The species specific preferences.
 @export_category("Preferences")
 ## How fast this species gets bored.
-@export_range(0.5, 2.5, 1) var boredom_rate: float = 1.00
+@export_range(0.5, 2.5, .1) var boredom_rate: float = 1.00
 ## How fast this species gets hungry.
-@export_range(0.5, 2.5, 1) var hunger_rate: float = 1.00
+@export_range(0.5, 2.5, .1) var hunger_rate: float = 1.00
 ## The flavor preference(s) of this species.
 ## If left empty, pets of this species may have random (or no) preferences.
 @export var flavor_preference: Array[GlobalEnums.Flavor] = []
