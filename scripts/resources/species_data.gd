@@ -26,8 +26,8 @@ extends Resource
 @export_range(0.5, 2.5, 1) var boredom_rate: float = 1.00
 @export_range(0.5, 2.5, 1) var hunger_rate: float = 1.00
 @export var flavor_preference: Array[GlobalEnums.Flavor] = []
-@export var bedtime: Timestamp
-@export var waketime: Timestamp
+@export var bedtime: Timestamp = Timestamp.new()
+@export var waketime: Timestamp = Timestamp.new()
 
 @export_category("Evolutions")
 @export var can_evolve: bool = false
