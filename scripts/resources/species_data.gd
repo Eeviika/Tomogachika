@@ -3,7 +3,6 @@
 class_name SpeciesData
 extends Resource
 
-@export_category("Common")
 @export var name: String = "Pet"
 @export var can_be_naturally_obtained: bool = false
 @export var scale: float = 1.00
