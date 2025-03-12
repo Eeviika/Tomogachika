@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="SpeciesData" load_steps=6 format=3 uid="uid://n4twtlpu2e6v"]
+
+[ext_resource type="Script" uid="uid://nuns07t2porj" path="res://scripts/resources/timestamp.gd" id="1_7nurc"]
+[ext_resource type="Script" uid="uid://r4qfbb2o3p2b" path="res://scripts/resources/evolution_data.gd" id="1_nqxxs"]
+[ext_resource type="Script" uid="uid://0apnk1jg33ln" path="res://scripts/resources/species_data.gd" id="2_7nurc"]
+
+[sub_resource type="Resource" id="Resource_h618q"]
+script = ExtResource("1_7nurc")
+hour = 20
+minute = 30
+second = 0
+metadata/_custom_type_script = "uid://nuns07t2porj"
+
+[sub_resource type="Resource" id="Resource_01pi0"]
+script = ExtResource("1_7nurc")
+hour = 8
+minute = 30
+second = 0
+metadata/_custom_type_script = "uid://nuns07t2porj"
+
+[resource]
+script = ExtResource("2_7nurc")
+name = "Dummy"
+can_be_naturally_obtained = false
+scale = 1.0
+collision_radius = 1.0
+collision_offset = Vector2(0, 0)
+can_be_female = true
+can_be_male = true
+gender_ratio = 0.0
+average_weight = 1.0
+average_height = 1.0
+height_mutation = 0.5
+weight_mutation = 0.5
+weight_is_influenced = true
+height_is_influenced = true
+boredom_rate = 1.0
+hunger_rate = 1.0
+flavor_preference = Array[int]([])
+bedtime = SubResource("Resource_h618q")
+waketime = SubResource("Resource_01pi0")
+can_evolve = false
+evolutions = Array[ExtResource("1_nqxxs")]([])
+metadata/_custom_type_script = "uid://0apnk1jg33ln"
