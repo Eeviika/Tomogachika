@@ -32,4 +32,4 @@ extends Resource
 
 @export_category("Evolutions")
 @export var can_evolve: bool = false
-@export var evolutions: Array
+@export var evolutions: Array[EvolutionData] = []
