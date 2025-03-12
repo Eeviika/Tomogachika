@@ -1,6 +1,6 @@
 ## Represents the biology and statistics of a pet species.
 ## Typically converted from a JSON file when packing mods.
-class_name PetInfo
+class_name SpeciesData
 extends Resource
 
 @export_category("Common")
@@ -24,6 +24,12 @@ extends Resource
 @export var height_is_influenced: bool = false
 
 @export_category("Preferences")
-@export var flavor_preference: Array[GlobalEnums.Flavor]
+@export_range(0.5, 2.5, 1) var boredom_rate: float = 1.00
+@export_range(0.5, 2.5, 1) var hunger_rate: float = 1.00
+@export var flavor_preference: Array[GlobalEnums.Flavor] = []
 @export var bedtime: Timestamp
 @export var waketime: Timestamp
+
+@export_category("Evolutions")
+@export var can_evolve: bool = false
+@export var evolutions: Array
