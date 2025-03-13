@@ -12,6 +12,5 @@ shape = ExtResource("2_8wqpi")
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 
 [node name="TickTime" type="Timer" parent="."]
-autostart = true
 
 [connection signal="timeout" from="TickTime" to="." method="_on_tick"]
