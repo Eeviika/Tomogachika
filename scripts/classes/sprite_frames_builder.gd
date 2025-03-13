@@ -1,2 +1,0 @@
-class_name SpriteFramesBuilder
-extends RefCounted
