@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://byis133ykigb7"]
+
+[ext_resource type="Script" uid="uid://cpb4n4xmvpc27" path="res://scripts/debug/test_dummy.gd" id="1_1r56p"]
+[ext_resource type="PackedScene" uid="uid://dus4jroxi2ioo" path="res://scenes/pet.tscn" id="2_ynwl6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_m6tnb"]
+size = Vector2(1152, 49)
+
+[node name="TestDummy" type="Node2D"]
+script = ExtResource("1_1r56p")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(576, 551.5)
+shape = SubResource("RectangleShape2D_m6tnb")
+
+[node name="Pet" parent="." instance=ExtResource("2_ynwl6")]
+unique_name_in_owner = true
