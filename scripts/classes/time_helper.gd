@@ -2,7 +2,7 @@ class_name TimeHelper
 extends RefCounted
 
 
-static func _is_valid_time_dict(time_dict: Dictionary[String, int]) -> bool:
+static func _is_valid_time_dict(time_dict) -> bool:
 	if not ("hour" in time_dict and "minute" in time_dict and "second" in time_dict):
 		return false
 
@@ -20,7 +20,7 @@ static func _is_valid_time_dict(time_dict: Dictionary[String, int]) -> bool:
 	return true
 
 
-static func create_timestamp(time_dict: Dictionary[String, int]) -> Timestamp:
+static func create_timestamp(time_dict) -> Timestamp:
 	assert(_is_valid_time_dict(time_dict), "Cannot create a timestamp from an invalid time_dict.")
 	var new_timestamp: Timestamp = Timestamp.new()
 	new_timestamp.hour = time_dict.get("hour")
