@@ -4,6 +4,9 @@
 [ext_resource type="Shape2D" uid="uid://jpjq1ic4gnis" path="res://resources/pet_hitbox.tres" id="2_8wqpi"]
 
 [node name="Pet" type="CharacterBody2D"]
+process_mode = 4
+editor_description = "Represents a pet in the game. Is inactive by default, and must be activated before use."
+visible = false
 script = ExtResource("1_mdqe4")
 
 [node name="CollisionBox" type="CollisionShape2D" parent="."]
