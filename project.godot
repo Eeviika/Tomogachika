@@ -14,6 +14,7 @@ config/name="Tomogachika"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="IkaMakesGames/tomogachika"
 config/features=PackedStringArray("4.4", "GL Compatibility")
+run/max_fps=60
 boot_splash/bg_color=Color(0, 0, 0, 1)
 boot_splash/fullsize=false
 boot_splash/use_filter=false
@@ -29,8 +30,22 @@ version_control/autoload_on_startup=true
 
 enabled=PackedStringArray("res://addons/format_on_save/plugin.cfg", "res://addons/gdLinter/plugin.cfg", "res://addons/script-ide/plugin.cfg")
 
+[file_customization]
+
+folder_colors={
+"res://assets/": "red",
+"res://content/": "orange",
+"res://resources/": "yellow",
+"res://scenes/": "green",
+"res://scripts/": "purple"
+}
+
+[physics]
+
+common/physics_interpolation=true
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-environment/defaults/default_clear_color=Color(0, 0, 0, 1)
+environment/defaults/default_clear_color=Color(0.136826, 0.136826, 0.136826, 1)
