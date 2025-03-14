@@ -7,10 +7,13 @@
 process_mode = 4
 editor_description = "Represents a pet in the game. Is inactive by default, and must be activated before use."
 visible = false
+texture_filter = 1
 script = ExtResource("1_mdqe4")
 
 [node name="CollisionBox" type="CollisionShape2D" parent="."]
+visibility_layer = 3
 shape = ExtResource("2_8wqpi")
+debug_color = Color(0.893651, 0.000221786, 0.783579, 0.42)
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 
