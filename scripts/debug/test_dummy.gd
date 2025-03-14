@@ -2,7 +2,7 @@ extends Node2D
 
 var to_load: String = "internal_dummy"
 
-@onready var pet = %Pet
+@onready var pet: CharacterBody2D = %Pet
 
 
 # We will pretend to be a "pet loader" that wants to load the dummy pet.
@@ -21,3 +21,4 @@ func _ready() -> void:
 	var pet_sprites: SpriteFrames = load("res://content/petsprites/" + to_load + ".tres")
 	# Then make the pet active
 	pet.make_active(species_data, pet_sprites)
+	pet.position = Vector2(100, 100)
