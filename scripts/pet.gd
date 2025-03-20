@@ -6,7 +6,7 @@ extends CharacterBody2D
 ## The "base number" for stat updates.
 const UPDATE_BASE: float = 0.11
 ## The gravity to apply to the pet.
-const GRAVITY: float = 1.37
+const GRAVITY: float = 2.33
 ## A dummy unit is 16px and is used as a measurement unit.
 const DUMMY_UNIT: int = 16
 
@@ -20,14 +20,14 @@ var display_name: String = ""
 
 ## How fast the pet moves in terms of "dummy units (16px)."
 ## Example: If speed was set to 10, then the pet would have a max velocity of 160 (10 x 16).
-var speed: int = 10
+var speed: int = 15
 
 ## How full the pet is. This can exceed 100.0.
 var fullness: float = 50.0:
 	get:
 		return fullness
 	set(value):
-		fullness = clampf(fullness, 0.00, 100.0)
+		fullness = clampf(value, 0.00, 100.0)
 ## How bored a pet is.
 var boredom: float = 0.0:
 	get:
@@ -39,13 +39,13 @@ var happiness: float = 50.0:
 	get:
 		return happiness
 	set(value):
-		happiness = clampf(happiness, 0.00, 100.0)
+		happiness = clampf(value, 0.00, 100.0)
 ## How much energy the pet has.
 var energy: float = 100.0:
 	get:
 		return energy
 	set(value):
-		energy = clampf(energy, 0.00, 100.0)
+		energy = clampf(value, 0.00, 100.0)
 
 ## The pet's height in meters.
 var height: float = 1.0
@@ -89,13 +89,13 @@ func _physics_process(_delta: float) -> void:
 	elif velocity.y > 0:
 		velocity.y = 0
 
-	if velocity.x < speed / 2:
-		velocity.x = 0
-
 	if _point_of_interest != Vector2.ZERO:
 		_move_towards_point_of_interest()
 	else:
-		velocity.x /= speed * 2
+		velocity.x /= 1.5
+	if velocity.x < speed:
+		velocity.x = 0
+
 	velocity.x = clampf(velocity.x, -(speed * DUMMY_UNIT), speed * DUMMY_UNIT)
 	_animate()
 	move_and_slide()
@@ -103,25 +103,26 @@ func _physics_process(_delta: float) -> void:
 
 func _animate() -> void:
 	var normalized_velocity: Vector2 = velocity.normalized()
+	var animation_name: String = "idle_neutral"
 	if normalized_velocity == Vector2.ZERO:
 		if mood == GlobalEnums.Mood.UPSET or mood == GlobalEnums.Mood.TIRED:
-			_sprite.play("idle_upset")
+			animation_name = "idle_upset"
 		elif mood == GlobalEnums.Mood.HAPPY:
-			_sprite.play("idle_happy")
-		else:
-			_sprite.play("idle_neutral")
+			animation_name = "idle_happy"
 	if normalized_velocity == Vector2.LEFT:
-		_sprite.play("move_left")
+		animation_name = "move_left"
 	if normalized_velocity == Vector2.RIGHT:
-		_sprite.play("move_right")
-	if normalized_velocity.y < 0 and normalized_velocity == Vector2.LEFT:
-		_sprite.play("jump_left")
-	if normalized_velocity.y > 0 and normalized_velocity == Vector2.LEFT:
-		_sprite.play("fall_left")
-	if normalized_velocity.y < 0 and normalized_velocity == Vector2.RIGHT:
-		_sprite.play("jump_right")
-	if normalized_velocity.y > 0 and normalized_velocity == Vector2.RIGHT:
-		_sprite.play("fall_right")
+		animation_name = "move_right"
+	if normalized_velocity.y < 0 and normalized_velocity.x == Vector2.LEFT.x:
+		animation_name = "jump_left"
+	if normalized_velocity.y > 0 and normalized_velocity.x == Vector2.LEFT.x:
+		animation_name = "fall_left"
+	if normalized_velocity.y < 0 and normalized_velocity.x == Vector2.RIGHT.x:
+		animation_name = "jump_right"
+	if normalized_velocity.y > 0 and normalized_velocity.x == Vector2.RIGHT.x:
+		animation_name = "fall_right"
+
+	_sprite.play(animation_name)
 
 
 func _move_towards_point_of_interest() -> void:
@@ -131,9 +132,10 @@ func _move_towards_point_of_interest() -> void:
 		_point_of_interest = Vector2.ZERO
 		return
 	# Otherwise move towards the POI.
-	velocity.x = (
-		position.x
-		- move_toward(position.x, _point_of_interest.x, velocity.x + (speed * DUMMY_UNIT))
+	velocity.x += (
+		velocity.x + (speed / 2.0)
+		if _point_of_interest.x > position.x
+		else velocity.x - (speed / 2.0)
 	)
 
 
@@ -143,7 +145,7 @@ func _tired_update() -> void:
 
 func _tick_update() -> void:
 	boredom += UPDATE_BASE * _species_data.boredom_rate
-	fullness -= UPDATE_BASE * _species_data.hunger_rate
+	fullness -= UPDATE_BASE * _species_data.boredom_rate
 	random_movement()
 
 
@@ -187,8 +189,9 @@ func jump() -> void:
 
 
 func random_movement(forced: bool = false) -> void:
-	if not (forced or randi_range(0, 5) == 5):
+	if not (forced or randi_range(0, 10) == 10):
 		return
-
+	if not is_on_floor():
+		return
 	_point_of_interest = Vector2(position.x + randi_range(-75, 75), position.y)
 #endregion
