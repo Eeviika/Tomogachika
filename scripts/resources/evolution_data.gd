@@ -1,9 +1,9 @@
-## Represents a possible evolution that a species may have.
+## Represents a possible evolution that a species may undertake.
 class_name EvolutionData
 extends Resource
 
-## The species that another species will evolve into.
-@export var evolution: SpeciesData
+## The namespace of the species to evolve into.
+@export var evolution: StringName
 
 @export_category("Conditions")
 ## If true, this evolution can occur in spring.
