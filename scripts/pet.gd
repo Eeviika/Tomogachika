@@ -177,8 +177,7 @@ func make_active(species: SpeciesData, sprites: SpriteFrames) -> bool:
 	return _is_active
 
 
-func to_data() -> Dictionary:
-	
+func to_data():
 	pass
 
 
