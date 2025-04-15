@@ -7,12 +7,12 @@ extends Resource
 @export var name: String = "Pet"
 ## Can this pet be naturally obtained?
 ## (via. finding eggs, purchasing, etc.)
-## If false, this can only be obtained via a mod or command line.
+## If false, this can only be obtained via a mod or the command line.
 @export var can_be_naturally_obtained: bool = false
 ## The size of the pet.
 ## (A scale of 2.00 means the pet will be twice as large.)
 @export var scale: float = 1.00
-## The radius of the collision circle.
+## The radius of the collision circle. Scales with, well, scale.
 @export var collision_radius: float = 1.00
 ## The offset of the collision circle from the center of the pet.
 @export var collision_offset: Vector2 = Vector2.ZERO
@@ -31,6 +31,12 @@ extends Resource
 
 ## Biology and physical traits.
 @export_category("Biology")
+## The maximum speed that this pet can reach.
+@export var top_speed: float = 1.0
+## How much a pet will accelerate each frame before reaching their top speed.
+## Pets will slow down by twice this number.
+## If set to zero or any negative number, the game will not be happy.
+@export var acceleration: float = 1.0
 ## The average weight of this species (in kilograms).
 @export var average_weight: float = 1.0
 ## The average height of this species (in meters).

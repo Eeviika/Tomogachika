@@ -7,8 +7,6 @@ extends CharacterBody2D
 const UPDATE_BASE: float = 0.11
 ## The gravity to apply to the pet.
 const GRAVITY: float = 2.33
-## A dummy unit is 16px and is used as a measurement unit.
-const DUMMY_UNIT: int = 16
 
 ## The pet's gender.
 var gender: GlobalEnums.Gender = GlobalEnums.Gender.NONE
@@ -18,9 +16,10 @@ var mood: GlobalEnums.Mood = GlobalEnums.Mood.NEUTRAL
 ## The pet's nickname. If empty, will default to the pet's name.
 var display_name: String = ""
 
-## How fast the pet moves in terms of "dummy units (16px)."
-## Example: If speed was set to 10, then the pet would have a max velocity of 160 (10 x 16).
-var speed: int = 15
+## How fast the pet accelerates.
+var speed: float = 0.0
+## The maximum speed the pet can reach.
+var top_speed: float = 0.0
 
 ## How full the pet is. This can exceed 100.0.
 var fullness: float = 50.0:
@@ -71,14 +70,6 @@ var _is_active: bool = false
 
 
 #region Private / Engine / Signal Functions
-func _to_string() -> String:
-	var text: String = "Name: {0} ({1}) [{2}]\n\tHappiness: {3}\n\tEnergy: {4}\n\tBoredom: {5}\n\tFullness: {6}"
-	text = text.format(
-		[_species_data.name, display_name, gender, happiness, energy, boredom, fullness]
-	)
-	return text
-
-
 func _ready() -> void:
 	pass
 
@@ -92,11 +83,11 @@ func _physics_process(_delta: float) -> void:
 	if _point_of_interest != Vector2.ZERO:
 		_move_towards_point_of_interest()
 	else:
-		velocity.x /= 1.5
+		velocity.x -= speed * 2 if speed > 0 else -speed * 2
 	if velocity.x < speed:
 		velocity.x = 0
 
-	velocity.x = clampf(velocity.x, -(speed * DUMMY_UNIT), speed * DUMMY_UNIT)
+	velocity.x = clampf(velocity.x, -top_speed, top_speed)
 	_animate()
 	move_and_slide()
 
@@ -104,6 +95,7 @@ func _physics_process(_delta: float) -> void:
 func _animate() -> void:
 	var normalized_velocity: Vector2 = velocity.normalized()
 	var animation_name: String = "idle_neutral"
+	var animation_speed: float = 1.0
 	if normalized_velocity == Vector2.ZERO:
 		if mood == GlobalEnums.Mood.UPSET or mood == GlobalEnums.Mood.TIRED:
 			animation_name = "idle_upset"
@@ -111,8 +103,10 @@ func _animate() -> void:
 			animation_name = "idle_happy"
 	if normalized_velocity == Vector2.LEFT:
 		animation_name = "move_left"
+		animation_speed = top_speed / velocity.x
 	if normalized_velocity == Vector2.RIGHT:
 		animation_name = "move_right"
+		animation_speed = top_speed / velocity.x
 	if normalized_velocity.y < 0 and normalized_velocity.x == Vector2.LEFT.x:
 		animation_name = "jump_left"
 	if normalized_velocity.y > 0 and normalized_velocity.x == Vector2.LEFT.x:
@@ -122,7 +116,7 @@ func _animate() -> void:
 	if normalized_velocity.y > 0 and normalized_velocity.x == Vector2.RIGHT.x:
 		animation_name = "fall_right"
 
-	_sprite.play(animation_name)
+	_sprite.play(animation_name, animation_speed)
 
 
 func _move_towards_point_of_interest() -> void:
@@ -132,11 +126,7 @@ func _move_towards_point_of_interest() -> void:
 		_point_of_interest = Vector2.ZERO
 		return
 	# Otherwise move towards the POI.
-	velocity.x += (
-		velocity.x + (speed / 2.0)
-		if _point_of_interest.x > position.x
-		else velocity.x - (speed / 2.0)
-	)
+	velocity.x += (speed if _point_of_interest.x > position.x else -speed)
 
 
 func _tired_update() -> void:
@@ -180,8 +170,16 @@ func make_active(species: SpeciesData, sprites: SpriteFrames) -> bool:
 	_collision_box.shape.radius = species.collision_radius
 	scale *= species.scale
 
+	speed = species.acceleration
+	top_speed = species.top_speed
+
 	_tick_timer.start()
 	return _is_active
+
+
+func to_data() -> Dictionary:
+	
+	pass
 
 
 func jump() -> void:
