@@ -4,68 +4,35 @@ extends CharacterBody2D
 
 #region Public Variables
 ## The "base number" for stat updates.
-const UPDATE_BASE: float = 0.11
+const UPDATE_BASE := 0.11
 ## The gravity to apply to the pet.
-const GRAVITY: float = 2.33
-
-## The pet's gender.
-var gender: GlobalEnums.Gender = GlobalEnums.Gender.NONE
-## The pet's mood.
-var mood: GlobalEnums.Mood = GlobalEnums.Mood.NEUTRAL
-
-## The pet's nickname. If empty, will default to the pet's name.
-var display_name: String = ""
-
-## How fast the pet accelerates.
-var speed: float = 0.0
-## The maximum speed the pet can reach.
-var top_speed: float = 0.0
-
-## How full the pet is. This can exceed 100.0.
-var fullness: float = 50.0:
-	get:
-		return fullness
-	set(value):
-		fullness = clampf(value, 0.00, 100.0)
-## How bored a pet is.
-var boredom: float = 0.0:
-	get:
-		return boredom
-	set(value):
-		boredom = clampf(value, 0.00, 100.0)
-## How happy a pet is.
-var happiness: float = 50.0:
-	get:
-		return happiness
-	set(value):
-		happiness = clampf(value, 0.00, 100.0)
-## How much energy the pet has.
-var energy: float = 100.0:
-	get:
-		return energy
-	set(value):
-		energy = clampf(value, 0.00, 100.0)
-
-## The pet's height in meters.
-var height: float = 1.0
-## The pet's weight in kilograms.
-var weight: float = 1.0
+const GRAVITY := 2.33
 #endregion
 
 #region Private Variables
-## The species data that this pet inherits.
 var _species_data: SpeciesData
 
-## The point of interest that this pet will move towards.
-var _point_of_interest: Vector2 = Vector2.ZERO
+var _pet_stats: PetStats = PetStats.new()
 
-## If this pet is active or not. Active pets do not tick.
-## Pets are inactive by default and cannot become active without _species_data.
-var _is_active: bool = false
+var _pet_stats_saveable := [
+	"height",
+	"weight",
+	"gender",
+	"mood",
+	"display_name",
+	"fullness",
+	"boredom",
+	"happiness",
+	"energy"
+]
 
-@onready var _tick_timer = $TickTime
-@onready var _sprite = $Sprite
-@onready var _collision_box = $CollisionBox
+var _point_of_interest := Vector2.ZERO
+
+var _is_active := false
+
+@onready var _tick_timer := $TickTime
+@onready var _sprite := $Sprite
+@onready var _collision_box := $CollisionBox
 #endregion
 
 
@@ -83,11 +50,15 @@ func _physics_process(_delta: float) -> void:
 	if _point_of_interest != Vector2.ZERO:
 		_move_towards_point_of_interest()
 	else:
-		velocity.x -= speed * 2 if speed > 0 else -speed * 2
-	if velocity.x < speed:
+		velocity.x -= (
+			_species_data.acceleration * 2
+			if _species_data.acceleration > 0
+			else -_species_data.acceleration * 2
+		)
+	if velocity.x < _species_data.acceleration:
 		velocity.x = 0
 
-	velocity.x = clampf(velocity.x, -top_speed, top_speed)
+	velocity.x = clampf(velocity.x, -_species_data.top_speed, _species_data.top_speed)
 	_animate()
 	move_and_slide()
 
@@ -97,16 +68,16 @@ func _animate() -> void:
 	var animation_name: String = "idle_neutral"
 	var animation_speed: float = 1.0
 	if normalized_velocity == Vector2.ZERO:
-		if mood == GlobalEnums.Mood.UPSET or mood == GlobalEnums.Mood.TIRED:
+		if _pet_stats.mood == GlobalEnums.Mood.UPSET or _pet_stats.mood == GlobalEnums.Mood.TIRED:
 			animation_name = "idle_upset"
-		elif mood == GlobalEnums.Mood.HAPPY:
+		elif _pet_stats.mood == GlobalEnums.Mood.HAPPY:
 			animation_name = "idle_happy"
 	if normalized_velocity == Vector2.LEFT:
 		animation_name = "move_left"
-		animation_speed = top_speed / velocity.x
+		animation_speed = _species_data.top_speed / velocity.x
 	if normalized_velocity == Vector2.RIGHT:
 		animation_name = "move_right"
-		animation_speed = top_speed / velocity.x
+		animation_speed = _species_data.top_speed / velocity.x
 	if normalized_velocity.y < 0 and normalized_velocity.x == Vector2.LEFT.x:
 		animation_name = "jump_left"
 	if normalized_velocity.y > 0 and normalized_velocity.x == Vector2.LEFT.x:
@@ -126,7 +97,11 @@ func _move_towards_point_of_interest() -> void:
 		_point_of_interest = Vector2.ZERO
 		return
 	# Otherwise move towards the POI.
-	velocity.x += (speed if _point_of_interest.x > position.x else -speed)
+	velocity.x += (
+		_species_data.acceleration
+		if _point_of_interest.x > position.x
+		else -_species_data.acceleration
+	)
 
 
 func _tired_update() -> void:
@@ -134,8 +109,8 @@ func _tired_update() -> void:
 
 
 func _tick_update() -> void:
-	boredom += UPDATE_BASE * _species_data.boredom_rate
-	fullness -= UPDATE_BASE * _species_data.boredom_rate
+	_pet_stats.boredom += UPDATE_BASE * _species_data.boredom_rate
+	_pet_stats.fullness -= UPDATE_BASE * _species_data.hunger_rate
 	random_movement()
 
 
@@ -157,6 +132,8 @@ func _on_tick() -> void:
 
 
 #region Public Methods
+## Makes the pet object active. Ideally you'd want to call this before loading data.
+## Effectively creates a new Pet with default attributes.
 func make_active(species: SpeciesData, sprites: SpriteFrames) -> bool:
 	if _is_active:
 		return false
@@ -170,15 +147,39 @@ func make_active(species: SpeciesData, sprites: SpriteFrames) -> bool:
 	_collision_box.shape.radius = species.collision_radius
 	scale *= species.scale
 
-	speed = species.acceleration
-	top_speed = species.top_speed
+	_pet_stats.height = (
+		species.average_height
+		+ randf_range(
+			species.average_height - species.height_mutation,
+			species.average_height + species.height_mutation
+		)
+	)
+
+	_pet_stats.weight = (
+		species.average_weight
+		+ randf_range(
+			species.average_weight - species.weight_mutation,
+			species.average_weight + species.weight_mutation
+		)
+	)
 
 	_tick_timer.start()
 	return _is_active
 
 
-func to_data():
-	pass
+## Saves the pet's data as a Dictionary.
+## This reads from PetStats by using the array _pets_stats_saveable.
+func save() -> Dictionary[String, Variant]:
+	var saved_data: Dictionary[String, Variant] = {}
+
+	for item in _pet_stats_saveable:
+		var value = _pet_stats.get(item)
+		if value == null:
+			push_warning("")
+			continue
+		saved_data[item] = value
+
+	return saved_data
 
 
 func jump() -> void:
@@ -186,6 +187,8 @@ func jump() -> void:
 
 
 func random_movement(forced: bool = false) -> void:
+	if _point_of_interest != Vector2.ZERO and not forced:
+		return
 	if not (forced or randi_range(0, 10) == 10):
 		return
 	if not is_on_floor():
