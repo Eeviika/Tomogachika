@@ -14,6 +14,8 @@ var _species_data: SpeciesData
 
 var _pet_stats := PetStats.new()
 
+var _logger: Logger = Logger.new("PetObject")
+
 var _pet_stats_saveable := [
 	"height",
 	"weight",
@@ -93,6 +95,7 @@ func _animate() -> void:
 func _move_towards_point_of_interest() -> void:
 	# First, check if we are near the POI.
 	if position.distance_to(_point_of_interest) <= 16:
+		_logger.debug("Reached POI")
 		# We're close to the POI and can stop moving towards it.
 		_point_of_interest = Vector2.ZERO
 		return
@@ -134,9 +137,11 @@ func _on_tick() -> void:
 #region Public Methods
 ## Makes the pet object active. Ideally you'd want to call this before loading data.
 ## Effectively creates a new Pet with default attributes.
-func make_active(species: SpeciesData, sprites: SpriteFrames) -> bool:
+func make_active(species: SpeciesData, sprites: SpriteFrames):
 	if _is_active:
+		_logger.warn("Already active, cannot be made active again.")
 		return false
+	_logger.debug("Activating")
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	visible = true
 	_sprite.sprite_frames = sprites
@@ -164,34 +169,42 @@ func make_active(species: SpeciesData, sprites: SpriteFrames) -> bool:
 	)
 
 	_tick_timer.start()
-	return _is_active
+	_logger.debug("Active")
 
 
 ## Saves the pet's data as a Dictionary.
 ## This reads from PetStats by using the array _pets_stats_saveable.
 func save() -> Dictionary[String, Variant]:
+	_logger.info("Saving data...")
 	var saved_data: Dictionary[String, Variant] = {}
 
 	for item in _pet_stats_saveable:
 		var value = _pet_stats.get(item)
 		if value == null:
-			push_warning("")
+			_logger.warn("Cannot save {0}.".format(item))
 			continue
 		saved_data[item] = value
 
+	_logger.info("Done saving data.")
+	_logger.t_debug(str(saved_data))
 	return saved_data
 
 
 func jump() -> void:
+	_logger.debug("Jump isn't integrated yet, why are you calling this")
 	pass
 
 
 func random_movement(forced: bool = false) -> void:
 	if _point_of_interest != Vector2.ZERO and not forced:
+		_logger.t_debug("Cannot do random movement because POI already defined")
 		return
 	if not (forced or randi_range(0, 10) == 10):
 		return
 	if not is_on_floor():
+		_logger.t_debug("Cannot do random movement because not on floor")
 		return
 	_point_of_interest = Vector2(position.x + randi_range(-75, 75), position.y)
+	_logger.t_debug("New POI: {0}".format(str(_point_of_interest)))
+	_logger.t_debug("Current Position: {0}".format(str(position)))
 #endregion
