@@ -23,3 +23,8 @@ extends Resource
 		return year
 	set(value):
 		year = (clampi(value, 1, 9999))
+
+
+## Converts the datestamp into a string in ISO 8601 format.
+func _to_string() -> String:
+	return "{0}-{1}-{2}".format([year, month, day])
