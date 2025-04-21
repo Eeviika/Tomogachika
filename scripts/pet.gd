@@ -12,7 +12,7 @@ const GRAVITY := 2.33
 #region Private Variables
 var _species_data: SpeciesData
 
-var _pet_stats: PetStats = PetStats.new()
+var _pet_stats := PetStats.new()
 
 var _pet_stats_saveable := [
 	"height",
