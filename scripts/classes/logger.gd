@@ -6,7 +6,7 @@ var _id: String = ""
 
 
 ## Creates a new Logger.
-func new(id: String):
+func _init(id: String) -> void:
 	_id = id
 
 
