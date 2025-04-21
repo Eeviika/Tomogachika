@@ -24,7 +24,6 @@ extends Resource
 	set(value):
 		second = clampi(value, 0, 59)
 
-
 ## Converts the timestamp into a string in standard format.
 func _to_string() -> String:
 	return "{0}:{1}:{2}".format([hour, minute, second])
