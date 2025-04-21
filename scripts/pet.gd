@@ -7,6 +7,9 @@ extends CharacterBody2D
 const UPDATE_BASE := 0.11
 ## The gravity to apply to the pet.
 const GRAVITY := 2.33
+
+## Units for movement.
+const DUMMY_UNIT := 16
 #endregion
 
 #region Private Variables
@@ -57,10 +60,12 @@ func _physics_process(_delta: float) -> void:
 			if _species_data.acceleration > 0
 			else -_species_data.acceleration * 2
 		)
-	if velocity.x < _species_data.acceleration:
+	if velocity.x < _species_data.acceleration * DUMMY_UNIT:
 		velocity.x = 0
 
-	velocity.x = clampf(velocity.x, -_species_data.top_speed, _species_data.top_speed)
+	velocity.x = clampf(
+		velocity.x, -_species_data.top_speed * DUMMY_UNIT, _species_data.top_speed * DUMMY_UNIT
+	)
 	_animate()
 	move_and_slide()
 
@@ -101,9 +106,9 @@ func _move_towards_point_of_interest() -> void:
 		return
 	# Otherwise move towards the POI.
 	velocity.x += (
-		_species_data.acceleration
+		_species_data.acceleration * DUMMY_UNIT
 		if _point_of_interest.x > position.x
-		else -_species_data.acceleration
+		else -_species_data.acceleration * DUMMY_UNIT
 	)
 
 
