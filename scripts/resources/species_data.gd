@@ -3,6 +3,9 @@
 class_name SpeciesData
 extends Resource
 
+## The namespace. Should match the filename of the pet.
+@export var _namespace: String = "internal_pet"
+
 ## The name of your pet's species.
 @export var name: String = "Pet"
 ## Can this pet be naturally obtained?
