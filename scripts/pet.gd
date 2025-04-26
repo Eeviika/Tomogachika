@@ -199,12 +199,45 @@ func save() -> Dictionary[String, Variant]:
 			_logger.warn("Cannot save {0}.".format(item))
 			continue
 		saved_data[item] = value
-	
+
 	saved_data["_namespace"] = species_data._namespace
-	
+
 	_logger.info("Done saving data.")
 	_logger.t_debug(str(saved_data))
 	return saved_data
+
+
+func load_from_save_capsule(save_capsule: SaveCapsule):
+	_logger.info("Loading from save...")
+
+	var last_saved_date: Datestamp = save_capsule.last_saved_date
+	var last_saved_time: Timestamp = save_capsule.last_saved_time
+	var pet_data: Dictionary[String, Variant] = save_capsule.pet_data
+
+	for key in pet_data.keys():
+		_pet_stats.set(key, pet_data[key])
+
+	# Calculate how long it has been (in hours) since the player left.
+	var hours_since_last_visit: int = 0
+	var seconds_since_last_visit: int = 0
+	var current_date: Datestamp = TimeHelper.current_date_to_datestamp()
+	var current_time: Timestamp = TimeHelper.current_time_to_timestamp()
+
+	var current_unix: int = TimeHelper.merge_and_convert(current_date, current_time)
+	var last_unix: int = TimeHelper.merge_and_convert(last_saved_date, last_saved_time)
+
+	seconds_since_last_visit = current_unix - last_unix
+	hours_since_last_visit = seconds_since_last_visit / 3600
+
+	# Anti-cheat check:
+	if last_unix > current_unix:
+		_cheater_no_cheating(GlobalEnums.CheatCause.TIME_TRAVEL)
+		return
+
+	_pet_stats.boredom += (UPDATE_BASE / 2) * hours_since_last_visit
+	_pet_stats.fullness -= (UPDATE_BASE / 2) * hours_since_last_visit
+	_pet_stats.energy -= (UPDATE_BASE / 4) * hours_since_last_visit
+	_pet_stats.happiness -= (UPDATE_BASE / 6) * hours_since_last_visit
 
 
 func jump() -> void:
@@ -212,11 +245,11 @@ func jump() -> void:
 	pass
 
 
-func random_movement(forced: bool = false) -> void:
-	if _point_of_interest != Vector2.ZERO and not forced:
+func random_movement() -> void:
+	if _point_of_interest != Vector2.ZERO:
 		_logger.t_debug("Cannot do random movement because POI already defined")
 		return
-	if not (forced or randi_range(0, 30) == 30):
+	if not randi_range(0, 30) == 30:
 		return
 	if not is_on_floor():
 		_logger.t_debug("Cannot do random movement because not on floor")
