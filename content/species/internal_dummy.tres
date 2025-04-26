@@ -20,6 +20,7 @@ metadata/_custom_type_script = "uid://nuns07t2porj"
 
 [resource]
 script = ExtResource("2_7nurc")
+_namespace = "internal_dummy"
 name = "Dummy"
 can_be_naturally_obtained = false
 scale = 3.5
