@@ -120,3 +120,15 @@ static func is_before_date(current_date: Datestamp, target_date: Datestamp) -> b
 	if current_date == target_date:
 		return false
 	return not is_past_date(current_date, target_date)
+
+
+static func merge_and_convert(_date: Datestamp, _time: Timestamp) -> int:
+	var datetime: Dictionary = {
+		"year" = _date.year,
+		"month" = _date.month,
+		"day" = _date.day,
+		"hour" = _time.hour,
+		"minute" = _time.minute,
+		"second" = _time.second
+	}
+	return Time.get_unix_time_from_datetime_dict(datetime)
