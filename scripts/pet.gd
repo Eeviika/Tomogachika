@@ -12,11 +12,12 @@ const GRAVITY := 2.33
 const POI_LENIENCY := 6
 ## Units for movement.
 const DUMMY_UNIT := 16
+
+## The pet's species data.
+var species_data: SpeciesData
 #endregion
 
 #region Private Variables
-var _species_data: SpeciesData
-
 var _pet_stats := PetStats.new()
 
 var _logger: Logger = Logger.new("PetObject")
@@ -50,21 +51,21 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	if not is_on_floor():
-		velocity.y += GRAVITY + (_pet_stats.weight + _species_data.average_weight)
+		velocity.y += GRAVITY + (_pet_stats.weight + species_data.average_weight)
 	elif velocity.y > 0:
 		velocity.y = 0
 
 	if _point_of_interest != Vector2.ZERO:
 		_move_towards_point_of_interest()
 	else:
-		var deceleration = abs(_species_data.acceleration) * 2
+		var deceleration = abs(species_data.acceleration) * 2
 		if velocity.x > 0:
 			velocity.x = max(velocity.x - deceleration, 0)
 		elif velocity.x < 0:
 			velocity.x = min(velocity.x + deceleration, 0)
 
 	velocity.x = clampf(
-		velocity.x, -_species_data.top_speed * DUMMY_UNIT, _species_data.top_speed * DUMMY_UNIT
+		velocity.x, -species_data.top_speed * DUMMY_UNIT, species_data.top_speed * DUMMY_UNIT
 	)
 	_animate()
 	move_and_slide()
@@ -81,10 +82,10 @@ func _animate() -> void:
 			animation_name = "idle_happy"
 	if normalized_velocity == Vector2.LEFT:
 		animation_name = "move_left"
-		animation_speed = int(-(_species_data.top_speed * DUMMY_UNIT) / velocity.x)
+		animation_speed = int(-(species_data.top_speed * DUMMY_UNIT) / velocity.x)
 	if normalized_velocity == Vector2.RIGHT:
 		animation_name = "move_right"
-		animation_speed = int((_species_data.top_speed * DUMMY_UNIT) / velocity.x)
+		animation_speed = int((species_data.top_speed * DUMMY_UNIT) / velocity.x)
 	if normalized_velocity.y < 0 and normalized_velocity.x == Vector2.LEFT.x:
 		animation_name = "jump_left"
 	if normalized_velocity.y > 0 and normalized_velocity.x == Vector2.LEFT.x:
@@ -111,9 +112,9 @@ func _move_towards_point_of_interest() -> void:
 		return
 	# Otherwise move towards the POI.
 	velocity.x += (
-		_species_data.acceleration * DUMMY_UNIT
+		species_data.acceleration * DUMMY_UNIT
 		if _point_of_interest.x > position.x
-		else -_species_data.acceleration * DUMMY_UNIT
+		else -species_data.acceleration * DUMMY_UNIT
 	)
 
 
@@ -123,18 +124,18 @@ func _tired_update() -> void:
 
 
 func _tick_update() -> void:
-	_pet_stats.boredom += UPDATE_BASE * _species_data.boredom_rate
-	_pet_stats.fullness -= UPDATE_BASE * _species_data.hunger_rate
+	_pet_stats.boredom += UPDATE_BASE * species_data.boredom_rate
+	_pet_stats.fullness -= UPDATE_BASE * species_data.hunger_rate
 	random_movement()
 
 
 func _on_tick() -> void:
 	if (
 		TimeHelper.is_past_time(
-			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), _species_data.bedtime
+			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), species_data.bedtime
 		)
 		or TimeHelper.is_before_time(
-			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), _species_data.waketime
+			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), species_data.waketime
 		)
 	):
 		print(TimeHelper.create_timestamp(Time.get_time_dict_from_system()))
@@ -157,7 +158,7 @@ func make_active(species: SpeciesData, sprites: SpriteFrames):
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	visible = true
 	_sprite.sprite_frames = sprites
-	_species_data = species
+	species_data = species
 	_is_active = true
 
 	_collision_box.position = species.collision_offset
@@ -196,7 +197,9 @@ func save() -> Dictionary[String, Variant]:
 			_logger.warn("Cannot save {0}.".format(item))
 			continue
 		saved_data[item] = value
-
+	
+	saved_data["_namespace"] = species_data._namespace
+	
 	_logger.info("Done saving data.")
 	_logger.t_debug(str(saved_data))
 	return saved_data
