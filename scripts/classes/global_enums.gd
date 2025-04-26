@@ -9,4 +9,6 @@ enum Gender { NONE, MALE, FEMALE }
 enum Flavor { SPICY, DRY, SWEET, BITTER, SOUR }
 
 ## Represents a pet's mood.
-enum Mood { NEUTRAL, HAPPY, HUNGRY, BORED, TIRED, ASLEEP, UPSET }
+enum Mood { NEUTRAL, HAPPY, HUNGRY, BORED, TIRED, ASLEEP, UPSET, DISAPPOINTED }
+
+enum CheatCause { TIME_TRAVEL }
