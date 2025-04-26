@@ -51,7 +51,7 @@ static func current_time_to_timestamp() -> Timestamp:
 	return new_timestamp
 
 static func create_datestamp(date_dict) -> Datestamp:
-	assert(_is_valid_time_dict(date_dict), "Cannot create a datestamp from an invalid date_dict.")
+	assert(_is_valid_date_dict(date_dict), "Cannot create a datestamp from an invalid date_dict.")
 
 	var new_datestamp: Datestamp = Datestamp.new()
 	new_datestamp.year = date_dict.get("year", -1)
