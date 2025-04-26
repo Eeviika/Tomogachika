@@ -130,18 +130,20 @@ func _tick_update() -> void:
 
 
 func _on_tick() -> void:
-	if (
-		TimeHelper.is_past_time(
-			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), species_data.bedtime
-		)
-		or TimeHelper.is_before_time(
-			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), species_data.waketime
-		)
-	):
-		print(TimeHelper.create_timestamp(Time.get_time_dict_from_system()))
+	if _pet_stats.mood == GlobalEnums.Mood.TIRED:
 		_tired_update()
 		return
 	_tick_update()
+
+
+func _cheater_no_cheating(cheat_cause: GlobalEnums.CheatCause):
+	_logger.error("Cheater! No cheating!")
+	_logger.error("Detected cheat: {0}".format([cheat_cause]))
+	_pet_stats.mood = GlobalEnums.Mood.DISAPPOINTED
+	_pet_stats.fullness /= 2
+	_pet_stats.energy /= 2
+	_pet_stats.happiness /= 3
+	pass
 
 
 #endregion
