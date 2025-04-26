@@ -43,6 +43,10 @@ folder_colors={
 "res://scripts/": "purple"
 }
 
+[game]
+
+config/save_file_version=1
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
