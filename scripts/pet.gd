@@ -131,19 +131,33 @@ func _move_towards_point_of_interest() -> void:
 
 
 func _tired_update() -> void:
-	_logger.debug("tired isn't integrated yet, why are you calling this")
+	_logger.debug("tired_update isn't integrated yet, why are you calling this")
+	_update_mood()
+	pass
+
+
+func _upset_update() -> void:
+	_logger.debug("upset_update isn't integrated yet, why are you calling this")
+	_update_mood()
 	pass
 
 
 func _tick_update() -> void:
 	_pet_stats.boredom += UPDATE_BASE * species_data.boredom_rate
 	_pet_stats.fullness -= UPDATE_BASE * species_data.hunger_rate
+	_update_mood()
 	random_movement()
 
 
 func _on_tick() -> void:
 	if _pet_stats.mood == GlobalEnums.Mood.TIRED:
 		_tired_update()
+		return
+	if (
+		_pet_stats.mood == GlobalEnums.Mood.UPSET
+		or _pet_stats.mood == GlobalEnums.Mood.DISAPPOINTED
+	):
+		_upset_update()
 		return
 	_tick_update()
 
