@@ -45,6 +45,18 @@ var _is_active := false
 
 
 #region Private / Engine / Signal Functions
+func _update_mood() -> void:
+	if (
+		TimeHelper.is_past_time(
+			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), species_data.bedtime
+		)
+		or TimeHelper.is_before_time(
+			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), species_data.waketime
+		)
+	):
+		pass
+
+
 func _ready() -> void:
 	pass
 
