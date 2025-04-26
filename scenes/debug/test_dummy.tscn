@@ -12,8 +12,65 @@ script = ExtResource("1_1r56p")
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2(576, 551.5)
+position = Vector2(368, 568)
 shape = SubResource("RectangleShape2D_m6tnb")
 
 [node name="Pet" parent="." instance=ExtResource("2_ynwl6")]
 unique_name_in_owner = true
+
+[node name="DebugText" type="Label" parent="."]
+unique_name_in_owner = true
+offset_right = 40.0
+offset_bottom = 23.0
+text = "A
+B
+C
+D
+E
+F
+G
+H
+I
+J"
+
+[node name="ResetPositionButton" type="Button" parent="."]
+unique_name_in_owner = true
+offset_left = 592.0
+offset_top = 8.0
+offset_right = 710.0
+offset_bottom = 39.0
+text = "Reset Position"
+
+[node name="ResetStatsButton" type="Button" parent="."]
+unique_name_in_owner = true
+offset_left = 592.0
+offset_top = 48.0
+offset_right = 710.0
+offset_bottom = 79.0
+text = "Reset Stats
+"
+
+[node name="CreateSaveButton" type="Button" parent="."]
+unique_name_in_owner = true
+offset_left = 408.0
+offset_top = 8.0
+offset_right = 569.0
+offset_bottom = 39.0
+text = "Create SaveCapsule"
+
+[node name="CreateOldSaveButton" type="Button" parent="."]
+unique_name_in_owner = true
+offset_left = 488.0
+offset_top = 48.0
+offset_right = 569.0
+offset_bottom = 79.0
+text = "...as old"
+alignment = 2
+
+[node name="LoadSaveButton" type="Button" parent="."]
+unique_name_in_owner = true
+offset_left = 408.0
+offset_top = 88.0
+offset_right = 569.0
+offset_bottom = 119.0
+text = "Load SaveCapsule"
