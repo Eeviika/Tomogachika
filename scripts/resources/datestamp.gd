@@ -28,3 +28,11 @@ extends Resource
 ## Converts the datestamp into a string in ISO 8601 format.
 func _to_string() -> String:
 	return "{0}-{1}-{2}".format([year, month, day])
+
+## Converts the datestamp into a dictionary.
+func _to_dict() -> Dictionary[String, int]:
+	return {
+		"year" = year,
+		"month" = month,
+		"day" = day
+	}
