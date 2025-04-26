@@ -65,7 +65,7 @@ static func load_file(filename: String) -> SaveCapsule:
 		push_error("LoadFile failed: " + str(FileAccess.get_open_error()))
 		return null
 	
-	var file_contents: Dictionary[String, Variant] = save_file.get_var()
+	var file_contents: Dictionary = save_file.get_var()
 	
 	if file_contents.save_version != ProjectSettings.get_setting_with_override("game/config/save_file_version"):
 		push_error("LoadFile failed: invalid save version")
