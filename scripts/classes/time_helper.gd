@@ -53,11 +53,22 @@ static func create_datestamp(date_dict) -> Datestamp:
 
 
 static func is_past_time(current_time: Timestamp, target_time: Timestamp) -> bool:
-	return (
-		(current_time.hour > target_time.hour)
-		or (current_time.minute > target_time.minute)
-		or (current_time.second > target_time.second)
-	)
+	if current_time.hour > target_time.hour:
+		return true
+	elif current_time.hour < target_time.hour:
+		return false
+
+	if current_time.minute > target_time.minute:
+		return true
+	elif current_time.minute < target_time.minute:
+		return false
+
+	if current_time.second > target_time.second:
+		return true
+	elif current_time.second < target_time.second:
+		return false
+
+	return false
 
 
 static func is_before_time(current_time: Timestamp, target_time: Timestamp) -> bool:
@@ -66,12 +77,23 @@ static func is_before_time(current_time: Timestamp, target_time: Timestamp) -> b
 	return not is_past_time(current_time, target_time)
 
 
-static func is_past_date(current_date: Datestamp, target_date: Datestamp) -> bool:
-	return (
-		(current_date.year > target_date.year)
-		or (current_date.month > target_date.month)
-		or (current_date.day > target_date.day)
-	)
+static func is_past_date(current_time: Datestamp, target_time: Datestamp) -> bool:
+	if current_time.year > target_time.year:
+		return true
+	elif current_time.year < target_time.year:
+		return false
+
+	if current_time.month > target_time.month:
+		return true
+	elif current_time.month < target_time.month:
+		return false
+
+	if current_time.day > target_time.day:
+		return true
+	elif current_time.day < target_time.day:
+		return false
+
+	return false
 
 
 static func is_before_date(current_date: Datestamp, target_date: Datestamp) -> bool:
