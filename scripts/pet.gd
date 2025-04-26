@@ -4,10 +4,12 @@ extends CharacterBody2D
 
 #region Public Variables
 ## The "base number" for stat updates.
-const UPDATE_BASE := 0.11
+const UPDATE_BASE := 0.07
 ## The gravity to apply to the pet.
 const GRAVITY := 2.33
 
+## How close the pet must get to the POI before it considers the POI "reached."
+const POI_LENIENCY := 6
 ## Units for movement.
 const DUMMY_UNIT := 16
 #endregion
@@ -48,20 +50,18 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	if not is_on_floor():
-		velocity.y += GRAVITY
+		velocity.y += GRAVITY + (_pet_stats.weight + _species_data.average_weight)
 	elif velocity.y > 0:
 		velocity.y = 0
 
 	if _point_of_interest != Vector2.ZERO:
 		_move_towards_point_of_interest()
 	else:
-		velocity.x -= (
-			_species_data.acceleration * 2
-			if _species_data.acceleration > 0
-			else -_species_data.acceleration * 2
-		)
-	if velocity.x < _species_data.acceleration * DUMMY_UNIT:
-		velocity.x = 0
+		var deceleration = abs(_species_data.acceleration) * 2
+		if velocity.x > 0:
+			velocity.x = max(velocity.x - deceleration, 0)
+		elif velocity.x < 0:
+			velocity.x = min(velocity.x + deceleration, 0)
 
 	velocity.x = clampf(
 		velocity.x, -_species_data.top_speed * DUMMY_UNIT, _species_data.top_speed * DUMMY_UNIT
@@ -81,10 +81,10 @@ func _animate() -> void:
 			animation_name = "idle_happy"
 	if normalized_velocity == Vector2.LEFT:
 		animation_name = "move_left"
-		animation_speed = _species_data.top_speed / velocity.x
+		animation_speed = int(-(_species_data.top_speed * DUMMY_UNIT) / velocity.x)
 	if normalized_velocity == Vector2.RIGHT:
 		animation_name = "move_right"
-		animation_speed = _species_data.top_speed / velocity.x
+		animation_speed = int((_species_data.top_speed * DUMMY_UNIT) / velocity.x)
 	if normalized_velocity.y < 0 and normalized_velocity.x == Vector2.LEFT.x:
 		animation_name = "jump_left"
 	if normalized_velocity.y > 0 and normalized_velocity.x == Vector2.LEFT.x:
@@ -94,12 +94,17 @@ func _animate() -> void:
 	if normalized_velocity.y > 0 and normalized_velocity.x == Vector2.RIGHT.x:
 		animation_name = "fall_right"
 
+	if _sprite.animation == animation_name:
+		return
+
+	animation_speed = clampf(animation_speed, 0.0, 1.0)
+
 	_sprite.play(animation_name, animation_speed)
 
 
 func _move_towards_point_of_interest() -> void:
 	# First, check if we are near the POI.
-	if position.distance_to(_point_of_interest) <= 16:
+	if position.distance_to(_point_of_interest) <= POI_LENIENCY:
 		_logger.debug("Reached POI")
 		# We're close to the POI and can stop moving towards it.
 		_point_of_interest = Vector2.ZERO
@@ -113,6 +118,7 @@ func _move_towards_point_of_interest() -> void:
 
 
 func _tired_update() -> void:
+	_logger.debug("tired isn't integrated yet, why are you calling this")
 	pass
 
 
@@ -131,6 +137,7 @@ func _on_tick() -> void:
 			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), _species_data.waketime
 		)
 	):
+		print(TimeHelper.create_timestamp(Time.get_time_dict_from_system()))
 		_tired_update()
 		return
 	_tick_update()
@@ -204,12 +211,13 @@ func random_movement(forced: bool = false) -> void:
 	if _point_of_interest != Vector2.ZERO and not forced:
 		_logger.t_debug("Cannot do random movement because POI already defined")
 		return
-	if not (forced or randi_range(0, 10) == 10):
+	if not (forced or randi_range(0, 30) == 30):
 		return
 	if not is_on_floor():
 		_logger.t_debug("Cannot do random movement because not on floor")
 		return
-	_point_of_interest = Vector2(position.x + randi_range(-75, 75), position.y)
-	_logger.t_debug("New POI: {0}".format(str(_point_of_interest)))
-	_logger.t_debug("Current Position: {0}".format(str(position)))
+	_point_of_interest = Vector2(position.x + randi_range(-75, 75) + POI_LENIENCY, position.y)
+	_logger.t_debug("New POI: {0}".format([_point_of_interest]))
+	_logger.t_debug("Current Position: {0}".format([position]))
+	save()
 #endregion
