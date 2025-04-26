@@ -28,10 +28,6 @@ extends Resource
 		energy = clampf(value, 0.00, 100.0)
 
 ## The pet's height in meters.
-@export var height := 1.0:
-	set(value):
-		height = clampf(height, 0.01, 999.9)
+@export var height := 1.0
 ## The pet's weight in kilograms.
-@export var weight := 1.0:
-	set(value):
-		weight = clampf(weight, 0.01, 999.9)
+@export var weight := 1.0
