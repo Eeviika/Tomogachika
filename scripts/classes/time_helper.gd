@@ -40,10 +40,30 @@ static func create_timestamp(time_dict) -> Timestamp:
 
 	return new_timestamp
 
+static func current_time_to_timestamp() -> Timestamp:
+	var time_dict = Time.get_time_dict_from_system()
+	
+	var new_timestamp: Timestamp = Timestamp.new()
+	new_timestamp.hour = time_dict.get("hour", -1)
+	new_timestamp.minute = time_dict.get("minute", -1)
+	new_timestamp.second = time_dict.get("second", -1)
+	
+	return new_timestamp
 
 static func create_datestamp(date_dict) -> Datestamp:
 	assert(_is_valid_time_dict(date_dict), "Cannot create a datestamp from an invalid date_dict.")
 
+	var new_datestamp: Datestamp = Datestamp.new()
+	new_datestamp.year = date_dict.get("year", -1)
+	new_datestamp.month = date_dict.get("month", -1)
+	new_datestamp.day = date_dict.get("day", -1)
+
+	return new_datestamp
+
+
+static func current_date_to_datestamp() -> Datestamp:
+	var date_dict = Time.get_date_dict_from_system()
+	
 	var new_datestamp: Datestamp = Datestamp.new()
 	new_datestamp.year = date_dict.get("year", -1)
 	new_datestamp.month = date_dict.get("month", -1)
