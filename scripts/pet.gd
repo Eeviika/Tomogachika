@@ -15,14 +15,16 @@ const DUMMY_UNIT := 16
 
 ## The pet's species data.
 var species_data: SpeciesData
+
+## The pet's stats.
+var pet_stats := PetStats.new()
 #endregion
 
 #region Private Variables
-var _pet_stats := PetStats.new()
 
 var _logger: Logger = Logger.new("PetObject")
 
-var _pet_stats_saveable := [
+var pet_stats_saveable := [
 	"height",
 	"weight",
 	"gender",
@@ -63,7 +65,7 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	if not is_on_floor():
-		velocity.y += GRAVITY + (_pet_stats.weight + species_data.average_weight)
+		velocity.y += GRAVITY + (pet_stats.weight + species_data.average_weight)
 	elif velocity.y > 0:
 		velocity.y = 0
 
@@ -88,9 +90,9 @@ func _animate() -> void:
 	var animation_name: String = "idle_neutral"
 	var animation_speed: float = 1.0
 	if normalized_velocity == Vector2.ZERO:
-		if _pet_stats.mood == GlobalEnums.Mood.UPSET or _pet_stats.mood == GlobalEnums.Mood.TIRED:
+		if pet_stats.mood == GlobalEnums.Mood.UPSET or pet_stats.mood == GlobalEnums.Mood.TIRED:
 			animation_name = "idle_upset"
-		elif _pet_stats.mood == GlobalEnums.Mood.HAPPY:
+		elif pet_stats.mood == GlobalEnums.Mood.HAPPY:
 			animation_name = "idle_happy"
 	if normalized_velocity == Vector2.LEFT:
 		animation_name = "move_left"
@@ -143,20 +145,17 @@ func _upset_update() -> void:
 
 
 func _tick_update() -> void:
-	_pet_stats.boredom += UPDATE_BASE * species_data.boredom_rate
-	_pet_stats.fullness -= UPDATE_BASE * species_data.hunger_rate
+	pet_stats.boredom += UPDATE_BASE * species_data.boredom_rate
+	pet_stats.fullness -= UPDATE_BASE * species_data.hunger_rate
 	_update_mood()
 	random_movement()
 
 
 func _on_tick() -> void:
-	if _pet_stats.mood == GlobalEnums.Mood.TIRED:
+	if pet_stats.mood == GlobalEnums.Mood.TIRED:
 		_tired_update()
 		return
-	if (
-		_pet_stats.mood == GlobalEnums.Mood.UPSET
-		or _pet_stats.mood == GlobalEnums.Mood.DISAPPOINTED
-	):
+	if pet_stats.mood == GlobalEnums.Mood.UPSET or pet_stats.mood == GlobalEnums.Mood.DISAPPOINTED:
 		_upset_update()
 		return
 	_tick_update()
@@ -165,10 +164,10 @@ func _on_tick() -> void:
 func _cheater_no_cheating(cheat_cause: GlobalEnums.CheatCause):
 	_logger.error("Cheater! No cheating!")
 	_logger.error("Detected cheat: {0}".format([cheat_cause]))
-	_pet_stats.mood = GlobalEnums.Mood.DISAPPOINTED
-	_pet_stats.fullness /= 2
-	_pet_stats.energy /= 2
-	_pet_stats.happiness /= 3
+	pet_stats.mood = GlobalEnums.Mood.DISAPPOINTED
+	pet_stats.fullness /= 2
+	pet_stats.energy /= 2
+	pet_stats.happiness /= 3
 	pass
 
 
@@ -193,7 +192,7 @@ func make_active(species: SpeciesData, sprites: SpriteFrames):
 	_collision_box.shape.radius = species.collision_radius
 	scale *= species.scale
 
-	_pet_stats.height = (
+	pet_stats.height = (
 		species.average_height
 		+ randf_range(
 			species.average_height - species.height_mutation,
@@ -201,7 +200,7 @@ func make_active(species: SpeciesData, sprites: SpriteFrames):
 		)
 	)
 
-	_pet_stats.weight = (
+	pet_stats.weight = (
 		species.average_weight
 		+ randf_range(
 			species.average_weight - species.weight_mutation,
@@ -219,8 +218,8 @@ func save() -> Dictionary[String, Variant]:
 	_logger.info("Saving data...")
 	var saved_data: Dictionary[String, Variant] = {}
 
-	for item in _pet_stats_saveable:
-		var value = _pet_stats.get(item)
+	for item in pet_stats_saveable:
+		var value = pet_stats.get(item)
 		if value == null:
 			_logger.warn("Cannot save {0}.".format(item))
 			continue
@@ -241,7 +240,7 @@ func load_from_save_capsule(save_capsule: SaveCapsule):
 	var pet_data: Dictionary[String, Variant] = save_capsule.pet_data
 
 	for key in pet_data.keys():
-		_pet_stats.set(key, pet_data[key])
+		pet_stats.set(key, pet_data[key])
 
 	# Calculate how long it has been (in hours) since the player left.
 	var hours_since_last_visit: int = 0
@@ -260,10 +259,10 @@ func load_from_save_capsule(save_capsule: SaveCapsule):
 		_cheater_no_cheating(GlobalEnums.CheatCause.TIME_TRAVEL)
 		return
 
-	_pet_stats.boredom += (UPDATE_BASE / 2) * hours_since_last_visit
-	_pet_stats.fullness -= (UPDATE_BASE / 2) * hours_since_last_visit
-	_pet_stats.energy -= (UPDATE_BASE / 4) * hours_since_last_visit
-	_pet_stats.happiness -= (UPDATE_BASE / 6) * hours_since_last_visit
+	pet_stats.boredom += (UPDATE_BASE / 2) * hours_since_last_visit
+	pet_stats.fullness -= (UPDATE_BASE / 2) * hours_since_last_visit
+	pet_stats.energy -= (UPDATE_BASE / 4) * hours_since_last_visit
+	pet_stats.happiness -= (UPDATE_BASE / 6) * hours_since_last_visit
 
 
 func jump() -> void:
