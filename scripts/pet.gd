@@ -53,20 +53,46 @@ var _is_active := false
 
 
 #region Private / Engine / Signal Functions
-func _update_mood() -> void:
-	if (
+func _is_bedtime() -> bool:
+	return (
 		TimeHelper.is_past_time(
 			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), species_data.bedtime
 		)
 		or TimeHelper.is_before_time(
 			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), species_data.waketime
 		)
+	)
+
+
+func _update_mood() -> void:
+	var mood_to_set := GlobalEnums.Mood.NEUTRAL
+
+	if (
+		pet_stats.fullness >= 70
+		and pet_stats.boredom <= 30
+		and pet_stats.energy >= 20
+		and pet_stats.happiness >= 50
 	):
-		pass
+		pet_stats.mood = GlobalEnums.Mood.HAPPY
+		return
 
+	if _is_bedtime() or pet_stats.energy <= 20:
+		pet_stats.mood = GlobalEnums.Mood.TIRED
+		return
 
-func _ready() -> void:
-	pass
+	if pet_stats.fullness <= 20:
+		mood_to_set = GlobalEnums.Mood.HUNGRY
+
+	if pet_stats.boredom >= 80:
+		if mood_to_set != GlobalEnums.Mood.NEUTRAL:
+			pet_stats.mood = GlobalEnums.Mood.UPSET
+			return
+		mood_to_set = GlobalEnums.Mood.BORED
+
+	if pet_stats.happiness <= 20:
+		mood_to_set = GlobalEnums.Mood.UPSET
+
+	pet_stats.mood = mood_to_set
 
 
 func _physics_process(_delta: float) -> void:
@@ -95,32 +121,34 @@ func _animate() -> void:
 	var normalized_velocity: Vector2 = velocity.normalized()
 	var animation_name: String = "idle_neutral"
 	var animation_speed: float = 1.0
-	if normalized_velocity == Vector2.ZERO:
+
+	if velocity.y < 0:
+		if normalized_velocity.x < 0:
+			animation_name = "jump_left"
+		else:
+			animation_name = "jump_right"
+	elif velocity.y > 0:
+		if normalized_velocity.x < 0:
+			animation_name = "fall_left"
+		else:
+			animation_name = "fall_right"
+
+	elif normalized_velocity.x < 0:
+		animation_name = "move_left"
+		animation_speed = -species_data.top_speed / -velocity.x
+	elif normalized_velocity.x > 0:
+		animation_name = "move_right"
+		animation_speed = species_data.top_speed / velocity.x
+
+	else:
 		if pet_stats.mood == GlobalEnums.Mood.UPSET or pet_stats.mood == GlobalEnums.Mood.TIRED:
 			animation_name = "idle_upset"
 		elif pet_stats.mood == GlobalEnums.Mood.HAPPY:
 			animation_name = "idle_happy"
-	if normalized_velocity == Vector2.LEFT:
-		animation_name = "move_left"
-		animation_speed = int(-(species_data.top_speed * DUMMY_UNIT) / velocity.x)
-	if normalized_velocity == Vector2.RIGHT:
-		animation_name = "move_right"
-		animation_speed = int((species_data.top_speed * DUMMY_UNIT) / velocity.x)
-	if normalized_velocity.y < 0 and normalized_velocity.x == Vector2.LEFT.x:
-		animation_name = "jump_left"
-	if normalized_velocity.y > 0 and normalized_velocity.x == Vector2.LEFT.x:
-		animation_name = "fall_left"
-	if normalized_velocity.y < 0 and normalized_velocity.x == Vector2.RIGHT.x:
-		animation_name = "jump_right"
-	if normalized_velocity.y > 0 and normalized_velocity.x == Vector2.RIGHT.x:
-		animation_name = "fall_right"
 
-	if _sprite.animation == animation_name:
-		return
-
-	animation_speed = clampf(animation_speed, 0.0, 1.0)
-
-	_sprite.play(animation_name, animation_speed)
+	if _sprite.animation != animation_name:
+		animation_speed = clampf(animation_speed, 0.0, 1.0)
+		_sprite.play(animation_name)
 
 
 func _move_towards_point_of_interest() -> void:
@@ -152,12 +180,24 @@ func _upset_update() -> void:
 
 func _tick_update() -> void:
 	set_stat("boredom", pet_stats.boredom + (UPDATE_BASE * species_data.boredom_rate))
-	set_stat("fullness", pet_stats.fullness + (UPDATE_BASE * species_data.hunger_rate))
+	set_stat("fullness", pet_stats.fullness - (UPDATE_BASE * species_data.hunger_rate))
 	_update_mood()
 	random_movement()
 
 
 func _on_tick() -> void:
+	# Common tick logic goes here
+
+	var weight_ratio := pet_stats.weight / species_data.average_weight
+	var height_ratio := pet_stats.height / species_data.average_height
+
+	weight_ratio = clampf(weight_ratio, 0.8, 1.2)
+	height_ratio = clampf(height_ratio, 0.8, 1.2)
+
+	scale = Vector2(1, 1) * species_data.scale
+	scale.x *= weight_ratio
+	scale.y *= height_ratio
+
 	if pet_stats.mood == GlobalEnums.Mood.TIRED:
 		_tired_update()
 		return
@@ -198,27 +238,31 @@ func make_active(species: SpeciesData, sprites: SpriteFrames):
 	_collision_box.shape.radius = species.collision_radius
 	scale *= species.scale
 
-	set_stat(
-		"height",
-		(
-			species.average_height
-			+ randf_range(
-				species.average_height - species.height_mutation,
-				species.average_height + species.height_mutation
-			)
+	pet_stats.height = (
+		species.average_height
+		+ randf_range(
+			species.average_height - species.height_mutation,
+			species.average_height + species.height_mutation
 		)
 	)
 
-	set_stat(
-		"weight",
-		(
-			species.average_weight
-			+ randf_range(
-				species.average_weight - species.weight_mutation,
-				species.average_weight + species.weight_mutation
-			)
+	pet_stats.weight = (
+		species.average_weight
+		+ randf_range(
+			species.average_weight - species.weight_mutation,
+			species.average_weight + species.weight_mutation
 		)
 	)
+
+	var weight_ratio := pet_stats.weight / species_data.average_weight
+	var height_ratio := pet_stats.height / species_data.average_height
+
+	weight_ratio = clampf(weight_ratio, 0.8, 1.2)
+	height_ratio = clampf(height_ratio, 0.8, 1.2)
+
+	scale = Vector2(1, 1) * species_data.scale
+	scale.x *= weight_ratio
+	scale.y *= height_ratio
 
 	_tick_timer.start()
 	_logger.debug("Active")
@@ -264,6 +308,7 @@ func load_from_save_capsule(save_capsule: SaveCapsule):
 	var last_unix: int = TimeHelper.merge_and_convert(last_saved_date, last_saved_time)
 
 	seconds_since_last_visit = current_unix - last_unix
+	@warning_ignore("integer_division")
 	hours_since_last_visit = seconds_since_last_visit / 3600
 
 	# Anti-cheat check:
@@ -271,10 +316,22 @@ func load_from_save_capsule(save_capsule: SaveCapsule):
 		_cheater_no_cheating(GlobalEnums.CheatCause.TIME_TRAVEL)
 		return
 
-	set_stat("boredom", pet_stats.boredom + (UPDATE_BASE / 2) * hours_since_last_visit)
-	set_stat("fullness", pet_stats.fullness - (UPDATE_BASE / 2) * hours_since_last_visit)
-	set_stat("energy", pet_stats.energy - (UPDATE_BASE / 4) * hours_since_last_visit)
-	set_stat("happiness", pet_stats.happiness - (UPDATE_BASE / 6) * hours_since_last_visit)
+	# Do not punish the player for being gone for a minor amount of time.
+	if hours_since_last_visit <= 1.1:
+		return
+
+	set_stat("boredom", pet_stats.boredom + (UPDATE_BASE) * (hours_since_last_visit * 2))
+	@warning_ignore("integer_division")
+	set_stat("boredom", pet_stats.boredom + (UPDATE_BASE) * (seconds_since_last_visit / 120))
+	set_stat("fullness", pet_stats.fullness - (UPDATE_BASE) * (hours_since_last_visit * 2))
+	@warning_ignore("integer_division")
+	set_stat("fullness", pet_stats.fullness - (UPDATE_BASE) * (seconds_since_last_visit / 120))
+	set_stat("energy", pet_stats.energy - (UPDATE_BASE) * (hours_since_last_visit))
+	@warning_ignore("integer_division")
+	set_stat("energy", pet_stats.energy - (UPDATE_BASE) * (seconds_since_last_visit / 180))
+	set_stat("happiness", pet_stats.happiness - (UPDATE_BASE) * (hours_since_last_visit))
+	@warning_ignore("integer_division")
+	set_stat("happiness", pet_stats.happiness - (UPDATE_BASE) * (seconds_since_last_visit / 180))
 
 
 func jump() -> void:
@@ -283,8 +340,16 @@ func jump() -> void:
 
 
 func set_stat(stat_name: String, value: Variant) -> void:
-	if not pet_stats.get(stat_name):
+	if not (stat_name in pet_stats):
 		_logger.warn(stat_name + " cannot be changed for it doesn't exist!")
+		return
+	if typeof(value) != typeof(pet_stats.get(stat_name)):
+		_logger.warn("set_stat type mismatch for stat {0}!".format([stat_name]))
+		_logger.warn(
+			"expected {0}, got {1}".format(
+				[type_string(typeof(pet_stats.get(stat_name))), type_string(typeof(value))]
+			)
+		)
 		return
 	pet_stats.set(stat_name, value)
 	stat_updated.emit(stat_name, value)
@@ -302,5 +367,7 @@ func random_movement() -> void:
 	_point_of_interest = Vector2(position.x + randi_range(-75, 75) + POI_LENIENCY, position.y)
 	_logger.t_debug("New POI: {0}".format([_point_of_interest]))
 	_logger.t_debug("Current Position: {0}".format([position]))
-	save()
+	if _point_of_interest.x < 0 or _point_of_interest.x > 720:
+		_logger.t_debug("Cancelling random movement POI because it potentially goes out of bounds")
+		_point_of_interest = Vector2.ZERO
 #endregion
