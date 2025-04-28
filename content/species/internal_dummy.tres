@@ -20,14 +20,17 @@ metadata/_custom_type_script = "uid://nuns07t2porj"
 
 [resource]
 script = ExtResource("2_7nurc")
+_namespace = "internal_dummy"
 name = "Dummy"
 can_be_naturally_obtained = false
-scale = 2.5
+scale = 3.5
 collision_radius = 7.0
 collision_offset = Vector2(0, 1)
 can_be_female = true
 can_be_male = true
 gender_ratio = 0.0
+top_speed = 6.5
+acceleration = 0.6
 average_weight = 1.0
 average_height = 1.0
 height_mutation = 0.5

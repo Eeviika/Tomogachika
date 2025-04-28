@@ -1,4 +1,4 @@
-## Represents a point in time.
+## Represents a specific time.
 class_name Timestamp
 extends Resource
 
@@ -8,18 +8,30 @@ extends Resource
 	get:
 		return hour
 	set(value):
-		hour = floor(clamp(value, 0, 23))
+		hour = clampi(value, 0, 23)
 ## The minute of this timestamp.
 ## Cannot be below 0 or exceed 59.
 @export var minute: int = 0:
 	get:
 		return minute
 	set(value):
-		minute = floor(clamp(value, 0, 59))
+		minute = clampi(value, 0, 59)
 ## The second of this timestamp.
 ## Cannot be below 0 or exceed 59.
 @export var second: int = 0:
 	get:
 		return second
 	set(value):
-		second = floor(clamp(value, 0, 59))
+		second = clampi(value, 0, 59)
+
+## Converts the timestamp into a string in standard format.
+func _to_string() -> String:
+	return "{0}:{1}:{2}".format([hour, minute, second])
+
+## Converts the timestamp into a dictionary.
+func _to_dict() -> Dictionary[String, int]:
+	return {
+		"hour" = hour,
+		"minute" = minute,
+		"second" = second
+	}
