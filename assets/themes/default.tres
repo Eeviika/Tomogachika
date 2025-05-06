@@ -1,0 +1,6 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://cal2j4yq5r6th"]
+
+[ext_resource type="FontFile" uid="uid://d4dpr25c8lta0" path="res://assets/fonts/Orange Kid.otf" id="1_x0tin"]
+
+[resource]
+default_font = ExtResource("1_x0tin")
