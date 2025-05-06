@@ -1,6 +1,6 @@
 ## Represents a semi-controllable pet in the game. This is the main element of the game.
 class_name Pet
-extends CharacterBody2D
+extends Actor
 
 #region Signals
 
@@ -11,13 +11,6 @@ signal stat_updated(stat_name: String, value: Variant)
 #region Public Variables
 ## The "base number" for stat updates.
 const UPDATE_BASE := 0.07
-## The gravity to apply to the pet.
-const GRAVITY := 2.33
-
-## How close the pet must get to the POI before it considers the POI "reached."
-const POI_LENIENCY := 6
-## Units for movement.
-const DUMMY_UNIT := 16
 
 ## The pet's species data.
 var species_data: SpeciesData
@@ -30,29 +23,46 @@ var pet_stats := PetStats.new()
 
 var _logger: Logger = Logger.new("PetObject")
 
-var pet_stats_saveable := [
-	"height",
-	"weight",
-	"gender",
-	"mood",
-	"display_name",
-	"fullness",
-	"boredom",
-	"happiness",
-	"energy"
-]
-
-var _point_of_interest := Vector2.ZERO
-
 var _is_active := false
 
-@onready var _tick_timer := $TickTime
+@onready var _tick_timer := $TickTimer
 @onready var _sprite := $Sprite
-@onready var _collision_box := $CollisionBox
+@onready var _collision_box := $CollisionObject
 #endregion
 
 
 #region Private / Engine / Signal Functions
+func _create_animation_rules() -> Array[AnimationRule]:
+	var idle_happy := AnimationRule.new()
+	var idle_upset := AnimationRule.new()
+	var animations : Array[AnimationRule] = []
+	
+	idle_happy.animation_name = "idle_happy"
+	idle_happy.priority = 1
+	idle_happy.condition = func(actor: Actor) -> bool:
+		var pet = actor as Pet
+		if pet == null:
+			return false
+		var _pet_stats : PetStats = pet.pet_stats
+		return _pet_stats.mood == GlobalEnums.Mood.HAPPY and pet.velocity.x == 0 and pet.is_on_floor()
+	
+	animations.append(idle_happy)
+	
+	idle_upset.animation_name = "idle_upset"
+	idle_upset.priority = 1
+	idle_upset.condition = func(actor: Actor) -> bool:
+		var pet = actor as Pet
+		if pet == null:
+			return false
+		var _pet_stats : PetStats = pet.pet_stats
+		return _pet_stats.mood == GlobalEnums.Mood.UPSET and pet.velocity.x == 0 and pet.is_on_floor()
+	
+	animations.append(idle_upset)
+	animations.append_array(PredefinedAnimationRules.get_all())
+	
+	return animations
+
+
 func _is_bedtime() -> bool:
 	return (
 		TimeHelper.is_past_time(
@@ -67,10 +77,20 @@ func _is_bedtime() -> bool:
 func _update_mood() -> void:
 	var mood_to_set := GlobalEnums.Mood.NEUTRAL
 
+	if pet_stats.mood == GlobalEnums.Mood.DISAPPOINTED:
+		if (
+			pet_stats.fullness >= 60
+			and pet_stats.boredom <= 40
+			and pet_stats.energy >= 40
+			and pet_stats.happiness >= 50
+		):
+			pet_stats.mood = GlobalEnums.Mood.NEUTRAL
+		return
+
 	if (
-		pet_stats.fullness >= 70
-		and pet_stats.boredom <= 30
-		and pet_stats.energy >= 20
+		pet_stats.fullness >= 60
+		and pet_stats.boredom <= 40
+		and pet_stats.energy >= 40
 		and pet_stats.happiness >= 50
 	):
 		pet_stats.mood = GlobalEnums.Mood.HAPPY
@@ -93,78 +113,6 @@ func _update_mood() -> void:
 		mood_to_set = GlobalEnums.Mood.UPSET
 
 	pet_stats.mood = mood_to_set
-
-
-func _physics_process(_delta: float) -> void:
-	if not is_on_floor():
-		velocity.y += GRAVITY + (pet_stats.weight + species_data.average_weight)
-	elif velocity.y > 0:
-		velocity.y = 0
-
-	if _point_of_interest != Vector2.ZERO:
-		_move_towards_point_of_interest()
-	else:
-		var deceleration = abs(species_data.acceleration) * 2
-		if velocity.x > 0:
-			velocity.x = max(velocity.x - deceleration, 0)
-		elif velocity.x < 0:
-			velocity.x = min(velocity.x + deceleration, 0)
-
-	velocity.x = clampf(
-		velocity.x, -species_data.top_speed * DUMMY_UNIT, species_data.top_speed * DUMMY_UNIT
-	)
-	_animate()
-	move_and_slide()
-
-
-func _animate() -> void:
-	var normalized_velocity: Vector2 = velocity.normalized()
-	var animation_name: String = "idle_neutral"
-	var animation_speed: float = 1.0
-
-	if velocity.y < 0:
-		if normalized_velocity.x < 0:
-			animation_name = "jump_left"
-		else:
-			animation_name = "jump_right"
-	elif velocity.y > 0:
-		if normalized_velocity.x < 0:
-			animation_name = "fall_left"
-		else:
-			animation_name = "fall_right"
-
-	elif normalized_velocity.x < 0:
-		animation_name = "move_left"
-		animation_speed = -species_data.top_speed / -velocity.x
-	elif normalized_velocity.x > 0:
-		animation_name = "move_right"
-		animation_speed = species_data.top_speed / velocity.x
-
-	else:
-		if pet_stats.mood == GlobalEnums.Mood.UPSET or pet_stats.mood == GlobalEnums.Mood.TIRED:
-			animation_name = "idle_upset"
-		elif pet_stats.mood == GlobalEnums.Mood.HAPPY:
-			animation_name = "idle_happy"
-
-	if _sprite.animation != animation_name:
-		animation_speed = clampf(animation_speed, 0.0, 1.0)
-		_sprite.play(animation_name)
-
-
-func _move_towards_point_of_interest() -> void:
-	# First, check if we are near the POI.
-	if position.distance_to(_point_of_interest) <= POI_LENIENCY:
-		_logger.debug("Reached POI")
-		# We're close to the POI and can stop moving towards it.
-		_point_of_interest = Vector2.ZERO
-		return
-	# Otherwise move towards the POI.
-	velocity.x += (
-		species_data.acceleration * DUMMY_UNIT
-		if _point_of_interest.x > position.x
-		else -species_data.acceleration * DUMMY_UNIT
-	)
-
 
 func _tired_update() -> void:
 	_logger.debug("tired_update isn't integrated yet, why are you calling this")
@@ -215,8 +163,6 @@ func _cheater_no_cheating(cheat_cause: GlobalEnums.CheatCause):
 	set_stat("energy", pet_stats.energy / 2)
 	set_stat("happiness", pet_stats.happiness / 3)
 	pass
-
-
 #endregion
 
 
@@ -233,6 +179,8 @@ func make_active(species: SpeciesData, sprites: SpriteFrames):
 	_sprite.sprite_frames = sprites
 	species_data = species
 	_is_active = true
+
+	animation_rules.append_array(_create_animation_rules())
 
 	_collision_box.position = species.collision_offset
 	_collision_box.shape.radius = species.collision_radius
@@ -253,39 +201,25 @@ func make_active(species: SpeciesData, sprites: SpriteFrames):
 			species.average_weight + species.weight_mutation
 		)
 	)
+	
+	acceleration = species_data.acceleration
+	top_speed = species_data.top_speed
 
 	var weight_ratio := pet_stats.weight / species_data.average_weight
 	var height_ratio := pet_stats.height / species_data.average_height
 
 	weight_ratio = clampf(weight_ratio, 0.8, 1.2)
 	height_ratio = clampf(height_ratio, 0.8, 1.2)
+	gravity_modifier = clampf(weight_ratio, 1.0, 1.2)
 
 	scale = Vector2(1, 1) * species_data.scale
 	scale.x *= weight_ratio
 	scale.y *= height_ratio
+	
+	pet_stats._namespace = species_data._namespace
 
 	_tick_timer.start()
 	_logger.debug("Active")
-
-
-## Saves the pet's data as a Dictionary.
-## This reads from PetStats by using the array _pets_stats_saveable.
-func save() -> Dictionary[String, Variant]:
-	_logger.info("Saving data...")
-	var saved_data: Dictionary[String, Variant] = {}
-
-	for item in pet_stats_saveable:
-		var value = pet_stats.get(item)
-		if value == null:
-			_logger.warn("Cannot save {0}.".format(item))
-			continue
-		saved_data[item] = value
-
-	saved_data["_namespace"] = species_data._namespace
-
-	_logger.info("Done saving data.")
-	_logger.t_debug(str(saved_data))
-	return saved_data
 
 
 func load_from_save_capsule(save_capsule: SaveCapsule):
@@ -294,9 +228,7 @@ func load_from_save_capsule(save_capsule: SaveCapsule):
 	var last_saved_date: Datestamp = save_capsule.last_saved_date
 	var last_saved_time: Timestamp = save_capsule.last_saved_time
 	var pet_data: Dictionary[String, Variant] = save_capsule.pet_data
-
-	for key in pet_data.keys():
-		pet_stats.set(key, pet_data[key])
+	pet_stats.load_(pet_data)
 
 	# Calculate how long it has been (in hours) since the player left.
 	var hours_since_last_visit: int = 0
@@ -320,23 +252,18 @@ func load_from_save_capsule(save_capsule: SaveCapsule):
 	if hours_since_last_visit <= 1.1:
 		return
 
-	set_stat("boredom", pet_stats.boredom + (UPDATE_BASE) * (hours_since_last_visit * 2))
-	@warning_ignore("integer_division")
-	set_stat("boredom", pet_stats.boredom + (UPDATE_BASE) * (seconds_since_last_visit / 120))
-	set_stat("fullness", pet_stats.fullness - (UPDATE_BASE) * (hours_since_last_visit * 2))
-	@warning_ignore("integer_division")
-	set_stat("fullness", pet_stats.fullness - (UPDATE_BASE) * (seconds_since_last_visit / 120))
-	set_stat("energy", pet_stats.energy - (UPDATE_BASE) * (hours_since_last_visit))
-	@warning_ignore("integer_division")
-	set_stat("energy", pet_stats.energy - (UPDATE_BASE) * (seconds_since_last_visit / 180))
-	set_stat("happiness", pet_stats.happiness - (UPDATE_BASE) * (hours_since_last_visit))
-	@warning_ignore("integer_division")
-	set_stat("happiness", pet_stats.happiness - (UPDATE_BASE) * (seconds_since_last_visit / 180))
+	var stat_update_rules = {
+		"boredom": {"hour_mult": +2, "second_divisor": 120},
+		"fullness": {"hour_mult": -2, "second_divisor": -120},
+		"energy": {"hour_mult": -1, "second_divisor": -180},
+		"happiness": {"hour_mult": -1, "second_divisor": -180}
+	}
 
-
-func jump() -> void:
-	_logger.debug("Jump isn't integrated yet, why are you calling this")
-	pass
+	for stat_name in stat_update_rules.keys():
+		var rule = stat_update_rules[stat_name]
+		var hour_effect = UPDATE_BASE * hours_since_last_visit * rule.hour_mult
+		var second_effect = UPDATE_BASE * (seconds_since_last_visit / rule.second_divisor)
+		set_stat(stat_name, pet_stats.get(stat_name) + hour_effect + second_effect)
 
 
 func set_stat(stat_name: String, value: Variant) -> void:
@@ -353,21 +280,4 @@ func set_stat(stat_name: String, value: Variant) -> void:
 		return
 	pet_stats.set(stat_name, value)
 	stat_updated.emit(stat_name, value)
-
-
-func random_movement() -> void:
-	if _point_of_interest != Vector2.ZERO:
-		_logger.t_debug("Cannot do random movement because POI already defined")
-		return
-	if not randi_range(0, 30) == 30:
-		return
-	if not is_on_floor():
-		_logger.t_debug("Cannot do random movement because not on floor")
-		return
-	_point_of_interest = Vector2(position.x + randi_range(-75, 75) + POI_LENIENCY, position.y)
-	_logger.t_debug("New POI: {0}".format([_point_of_interest]))
-	_logger.t_debug("Current Position: {0}".format([position]))
-	if _point_of_interest.x < 0 or _point_of_interest.x > 720:
-		_logger.t_debug("Cancelling random movement POI because it potentially goes out of bounds")
-		_point_of_interest = Vector2.ZERO
 #endregion
