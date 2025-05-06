@@ -46,13 +46,13 @@ func _ready() -> void:
 
 	create_save_button.pressed.connect(
 		func() -> void:
-			var save: SaveCapsule = SaveCapsule.new(true, pet.save())
+			var save: SaveCapsule = SaveCapsule.new(true, pet.pet_stats.save())
 			save.save_to_file()
 	)
 
 	create_old_save_button.pressed.connect(
 		func() -> void:
-			var save: SaveCapsule = SaveCapsule.new(true, pet.save())
+			var save: SaveCapsule = SaveCapsule.new(true, pet.pet_stats.save())
 			save.last_saved_date.day -= 1
 			save.save_to_file()
 	)
