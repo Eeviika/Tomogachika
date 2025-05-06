@@ -1,6 +1,23 @@
 ## A pet's statistics. This should not be created in the editor.
 class_name PetStats
-extends Resource
+extends SaveableResource
+
+var SAVEABLE_KEYS: Array[String] = [
+	"_namespace",
+	"gender",
+	"mood",
+	"display_name",
+	"fullness",
+	"boredom",
+	"happiness",
+	"energy",
+	"height",
+	"weight"
+]
+
+## Namespace from the SpeciesData assigned to this pet.
+@warning_ignore("unused_private_class_variable")
+var _namespace := &""
 
 ## The pet's gender.
 @export var gender := GlobalEnums.Gender.NONE
@@ -31,3 +48,11 @@ extends Resource
 @export var height := 1.0
 ## The pet's weight in kilograms.
 @export var weight := 1.0
+
+
+func save() -> Dictionary[String, Variant]:
+	return to_dict(SAVEABLE_KEYS)
+
+
+func load_(data: Dictionary) -> void:
+	from_dict(data)
