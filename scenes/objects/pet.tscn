@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://b7eiwqqnf2gse"]
+
+[ext_resource type="PackedScene" uid="uid://ct4dinchda3hj" path="res://scenes/objects/actor.tscn" id="1_107uo"]
+[ext_resource type="Script" uid="uid://do8t24yox3675" path="res://scripts/objects/pet.gd" id="1_mdqe4"]
+
+[node name="Pet" instance=ExtResource("1_107uo")]
+visible = false
+script = ExtResource("1_mdqe4")
+
+[node name="TickTimer" type="Timer" parent="." index="2"]
+
+[connection signal="timeout" from="TickTimer" to="." method="_on_tick"]
