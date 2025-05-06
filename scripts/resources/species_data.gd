@@ -4,6 +4,7 @@ class_name SpeciesData
 extends Resource
 
 ## The namespace. Should match the filename of the pet.
+@warning_ignore("unused_private_class_variable")
 @export var _namespace: String = "internal_pet"
 
 ## The name of your pet's species.
