@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://bn0ftqlcg6yij"]
+[gd_scene load_steps=6 format=3 uid="uid://bn0ftqlcg6yij"]
 
-[ext_resource type="Texture2D" uid="uid://dfku0pxbyrj6s" path="res://assets/logo.png" id="1_bq4jh"]
-[ext_resource type="Texture2D" uid="uid://wl2c5go4o0e0" path="res://assets/logo_disclaimer_ea.png" id="2_qw0xr"]
+[ext_resource type="Texture2D" uid="uid://dfku0pxbyrj6s" path="res://assets/logo/logo.png" id="1_bq4jh"]
+[ext_resource type="Script" uid="uid://cgdmmsh47rj81" path="res://scripts/screens/start_screen.gd" id="1_qw0xr"]
+[ext_resource type="Texture2D" uid="uid://wl2c5go4o0e0" path="res://assets/logo/disclaimer_early_access.png" id="2_qw0xr"]
+[ext_resource type="Texture2D" uid="uid://syylwffixcvg" path="res://assets/ui/ui_save_select.png" id="4_hx2x4"]
+[ext_resource type="LabelSettings" uid="uid://ctstnubvpa1oj" path="res://assets/themes/title_text.tres" id="5_g25ks"]
 
 [node name="StartScreen" type="Control"]
 texture_filter = 1
@@ -11,6 +14,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_qw0xr")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 1
@@ -22,6 +26,7 @@ grow_vertical = 2
 color = Color(0.7486, 0.95, 0.4465, 1)
 
 [node name="LogoControl" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -65,3 +70,67 @@ offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_qw0xr")
+
+[node name="MenuControl" type="Control" parent="."]
+layout_mode = 1
+anchor_top = 0.611111
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+metadata/_edit_use_anchors_ = true
+
+[node name="BGTexture" type="TextureRect" parent="MenuControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_hx2x4")
+stretch_mode = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuControl"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_top = 65
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MenuControl/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 30
+
+[node name="MenuText" type="Label" parent="MenuControl/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "SELECT OPTION"
+label_settings = ExtResource("5_g25ks")
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuControl/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="Button" type="Button" parent="MenuControl/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Element"
+
+[node name="Button2" type="Button" parent="MenuControl/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Element"
+
+[node name="Button3" type="Button" parent="MenuControl/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Element"
+
+[node name="Button4" type="Button" parent="MenuControl/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Element"
+
+[node name="Button5" type="Button" parent="MenuControl/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Element"
