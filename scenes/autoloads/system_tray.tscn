@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://dkm2jw4eludya"]
+
+[ext_resource type="Texture2D" uid="uid://c7v64yve3dtsj" path="res://assets/icon.png" id="1_g0brw"]
+[ext_resource type="Script" uid="uid://bkm38kj1lvmvq" path="res://scripts/autoloads/system_tray.gd" id="2_ui1d5"]
+
+[node name="SystemTray" type="StatusIndicator"]
+tooltip = "Tomogachi"
+icon = ExtResource("1_g0brw")
+menu = NodePath("TrayMenu")
+script = ExtResource("2_ui1d5")
+
+[node name="TrayMenu" type="PopupMenu" parent="."]
+allow_search = false
+system_menu_id = 5
+prefer_native_menu = true
+item_count = 2
+item_0/text = "hello"
+item_0/id = 0
+item_1/text = "world!"
+item_1/id = 1
