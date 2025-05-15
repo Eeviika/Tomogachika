@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Food" load_steps=2 format=3 uid="uid://dsyxs0vujbhid"]
+
+[ext_resource type="Script" uid="uid://b7emby6gh2qwl" path="res://scripts/resources/food.gd" id="1_i26cw"]
+
+[resource]
+script = ExtResource("1_i26cw")
+flavor = 2
+quality = 2
+name = "Sweet Bread"
+fullness = 30.0
+metadata/_custom_type_script = "uid://b7emby6gh2qwl"
