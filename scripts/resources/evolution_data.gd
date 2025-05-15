@@ -8,7 +8,7 @@ extends Resource
 @export_category("Conditions")
 ## If true, this evolution can occur in spring.
 @export var in_spring: bool = false
-## If true, this evolution can occur in summer.
+## If true, this evolution can occur in summer. 
 @export var in_summer: bool = false
 ## If true, this evolution can occur in fall.
 @export var in_fall: bool = false

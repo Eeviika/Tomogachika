@@ -7,6 +7,7 @@ extends Resource
 @warning_ignore("unused_private_class_variable")
 @export var _namespace: String = "internal_pet"
 
+@export_category("Common")
 ## The name of your pet's species.
 @export var name: String = "Pet"
 ## Can this pet be naturally obtained?
@@ -49,8 +50,10 @@ extends Resource
 @export var height_mutation: float = 0.0
 ## The possible weight mutation when one hatches.
 @export var weight_mutation: float = 0.0
+
 ## Determines if weight can be influenced by overeating / undereating.
 @export var weight_is_influenced: bool = false
+
 ## Determines if height can be influenced by sleeping.
 @export var height_is_influenced: bool = false
 

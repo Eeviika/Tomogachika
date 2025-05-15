@@ -35,43 +35,40 @@ var _is_active := false
 func _create_animation_rules() -> Array[AnimationRule]:
 	var idle_happy := AnimationRule.new()
 	var idle_upset := AnimationRule.new()
-	var animations : Array[AnimationRule] = []
-	
+	var animations: Array[AnimationRule] = []
+
 	idle_happy.animation_name = "idle_happy"
 	idle_happy.priority = 1
 	idle_happy.condition = func(actor: Actor) -> bool:
 		var pet = actor as Pet
+
 		if pet == null:
 			return false
-		var _pet_stats : PetStats = pet.pet_stats
+
+		var _pet_stats: PetStats = pet.pet_stats
 		return _pet_stats.mood == GlobalEnums.Mood.HAPPY and pet.velocity.x == 0 and pet.is_on_floor()
-	
+
 	animations.append(idle_happy)
-	
+
 	idle_upset.animation_name = "idle_upset"
 	idle_upset.priority = 1
 	idle_upset.condition = func(actor: Actor) -> bool:
 		var pet = actor as Pet
+
 		if pet == null:
 			return false
-		var _pet_stats : PetStats = pet.pet_stats
+
+		var _pet_stats: PetStats = pet.pet_stats
 		return _pet_stats.mood == GlobalEnums.Mood.UPSET and pet.velocity.x == 0 and pet.is_on_floor()
-	
+
 	animations.append(idle_upset)
 	animations.append_array(PredefinedAnimationRules.get_all())
-	
+
 	return animations
 
 
 func _is_bedtime() -> bool:
-	return (
-		TimeHelper.is_past_time(
-			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), species_data.bedtime
-		)
-		or TimeHelper.is_before_time(
-			TimeHelper.create_timestamp(Time.get_time_dict_from_system()), species_data.waketime
-		)
-	)
+	return TimeHelper.is_between_time(TimeHelper.current_time_to_timestamp(), species_data.bedtime, species_data.waketime)
 
 
 func _update_mood() -> void:
@@ -83,8 +80,10 @@ func _update_mood() -> void:
 			and pet_stats.boredom <= 40
 			and pet_stats.energy >= 40
 			and pet_stats.happiness >= 50
+
 		):
 			pet_stats.mood = GlobalEnums.Mood.NEUTRAL
+
 		return
 
 	if (
@@ -92,6 +91,7 @@ func _update_mood() -> void:
 		and pet_stats.boredom <= 40
 		and pet_stats.energy >= 40
 		and pet_stats.happiness >= 50
+
 	):
 		pet_stats.mood = GlobalEnums.Mood.HAPPY
 		return
@@ -107,12 +107,14 @@ func _update_mood() -> void:
 		if mood_to_set != GlobalEnums.Mood.NEUTRAL:
 			pet_stats.mood = GlobalEnums.Mood.UPSET
 			return
+
 		mood_to_set = GlobalEnums.Mood.BORED
 
 	if pet_stats.happiness <= 20:
 		mood_to_set = GlobalEnums.Mood.UPSET
 
 	pet_stats.mood = mood_to_set
+
 
 func _tired_update() -> void:
 	_logger.debug("tired_update isn't integrated yet, why are you calling this")
@@ -149,9 +151,11 @@ func _on_tick() -> void:
 	if pet_stats.mood == GlobalEnums.Mood.TIRED:
 		_tired_update()
 		return
+
 	if pet_stats.mood == GlobalEnums.Mood.UPSET or pet_stats.mood == GlobalEnums.Mood.DISAPPOINTED:
 		_upset_update()
 		return
+
 	_tick_update()
 
 
@@ -167,12 +171,17 @@ func _cheater_no_cheating(cheat_cause: GlobalEnums.CheatCause):
 
 
 #region Public Methods
+func feed(food: Food):
+	pass
+
+
 ## Makes the pet object active. Ideally you'd want to call this before loading data.
 ## Effectively creates a new Pet with default attributes.
 func make_active(species: SpeciesData, sprites: SpriteFrames):
 	if _is_active:
 		_logger.warn("Already active, cannot be made active again.")
 		return false
+
 	_logger.debug("Activating")
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	visible = true
@@ -191,7 +200,9 @@ func make_active(species: SpeciesData, sprites: SpriteFrames):
 		+ randf_range(
 			species.average_height - species.height_mutation,
 			species.average_height + species.height_mutation
+
 		)
+
 	)
 
 	pet_stats.weight = (
@@ -199,7 +210,9 @@ func make_active(species: SpeciesData, sprites: SpriteFrames):
 		+ randf_range(
 			species.average_weight - species.weight_mutation,
 			species.average_weight + species.weight_mutation
+
 		)
+
 	)
 	
 	acceleration = species_data.acceleration
@@ -270,14 +283,18 @@ func set_stat(stat_name: String, value: Variant) -> void:
 	if not (stat_name in pet_stats):
 		_logger.warn(stat_name + " cannot be changed for it doesn't exist!")
 		return
+
 	if typeof(value) != typeof(pet_stats.get(stat_name)):
 		_logger.warn("set_stat type mismatch for stat {0}!".format([stat_name]))
 		_logger.warn(
 			"expected {0}, got {1}".format(
 				[type_string(typeof(pet_stats.get(stat_name))), type_string(typeof(value))]
+
 			)
+
 		)
 		return
+
 	pet_stats.set(stat_name, value)
 	stat_updated.emit(stat_name, value)
 #endregion

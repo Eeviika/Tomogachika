@@ -7,11 +7,14 @@ extends Resource
 ## Returns a copy of the properties within the Resource in a Dictionary.
 ## These properties must exist, and must be passed through as an argument.
 func to_dict(properties_to_save: Array[String]) -> Dictionary[String, Variant]:
-	var result : Dictionary[String, Variant] = {}
+	var result: Dictionary[String, Variant] = {}
+
 	for prop in properties_to_save:
 		if not (prop in self):
 			continue
+
 		result[prop] = get(prop)
+
 	return result
 
 
