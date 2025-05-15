@@ -32,44 +32,44 @@ J"
 
 [node name="ResetPositionButton" type="Button" parent="."]
 unique_name_in_owner = true
-offset_left = 592.0
+offset_left = 544.0
 offset_top = 8.0
-offset_right = 710.0
-offset_bottom = 39.0
+offset_right = 719.0
+offset_bottom = 60.0
 text = "Reset Position"
 
 [node name="ResetStatsButton" type="Button" parent="."]
 unique_name_in_owner = true
-offset_left = 592.0
-offset_top = 48.0
-offset_right = 710.0
-offset_bottom = 79.0
+offset_left = 544.0
+offset_top = 72.0
+offset_right = 693.0
+offset_bottom = 124.0
 text = "Reset Stats
 "
 
 [node name="CreateSaveButton" type="Button" parent="."]
 unique_name_in_owner = true
-offset_left = 408.0
+offset_left = 280.0
 offset_top = 8.0
-offset_right = 569.0
-offset_bottom = 39.0
+offset_right = 530.0
+offset_bottom = 60.0
 text = "Create SaveCapsule"
 
 [node name="CreateOldSaveButton" type="Button" parent="."]
 unique_name_in_owner = true
-offset_left = 488.0
-offset_top = 48.0
-offset_right = 569.0
-offset_bottom = 79.0
+offset_left = 280.0
+offset_top = 64.0
+offset_right = 374.0
+offset_bottom = 116.0
 text = "...as old"
 alignment = 2
 
 [node name="LoadSaveButton" type="Button" parent="."]
 unique_name_in_owner = true
-offset_left = 408.0
-offset_top = 88.0
-offset_right = 569.0
-offset_bottom = 119.0
+offset_left = 280.0
+offset_top = 120.0
+offset_right = 505.0
+offset_bottom = 172.0
 text = "Load SaveCapsule"
 
 [node name="Pet" parent="." instance=ExtResource("2_ynwl6")]

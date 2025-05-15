@@ -1,6 +1,6 @@
 extends Node2D
 
-var to_load: String = "internal_dummy"
+var to_load: String = "core/dummy"
 
 @onready var pet: Pet = %Pet
 
@@ -19,12 +19,14 @@ func _ready() -> void:
 	assert(
 		ResourceLoader.exists("res://content/species/" + to_load + ".tres", "SpeciesData"),
 		"res://content/species/" + to_load + ".tres doesn't exist"
+
 	)
 	var species_data: SpeciesData = load("res://content/species/" + to_load + ".tres")
 	# Then find its respective spriteframes
 	assert(
 		ResourceLoader.exists("res://content/petsprites/" + to_load + ".tres"),
 		"res://content/petsprites/" + to_load + ".tres doesn't exist"
+
 	)
 	var pet_sprites: SpriteFrames = load("res://content/petsprites/" + to_load + ".tres")
 	# Then make the pet active
@@ -42,12 +44,14 @@ func _ready() -> void:
 			pet.pet_stats.energy = 100
 			pet.pet_stats.fullness = 50
 			pet.pet_stats.mood = GlobalEnums.Mood.NEUTRAL
+
 	)
 
 	create_save_button.pressed.connect(
 		func() -> void:
 			var save: SaveCapsule = SaveCapsule.new(true, pet.pet_stats.save())
 			save.save_to_file()
+
 	)
 
 	create_old_save_button.pressed.connect(
@@ -55,12 +59,14 @@ func _ready() -> void:
 			var save: SaveCapsule = SaveCapsule.new(true, pet.pet_stats.save())
 			save.last_saved_date.day -= 1
 			save.save_to_file()
+
 	)
 
 	load_save_button.pressed.connect(
 		func() -> void:
-			var save: SaveCapsule = SaveCapsule.load_file("internal_dummy.sav")
+			var save: SaveCapsule = SaveCapsule.load_file("core.dummy.sav")
 			pet.load_from_save_capsule(save)
+
 	)
 
 
