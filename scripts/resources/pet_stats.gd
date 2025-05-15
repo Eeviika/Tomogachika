@@ -54,5 +54,5 @@ func save() -> Dictionary[String, Variant]:
 	return to_dict(SAVEABLE_KEYS)
 
 
-func load_(data: Dictionary) -> void:
+func load(data: Dictionary) -> void:
 	from_dict(data)
