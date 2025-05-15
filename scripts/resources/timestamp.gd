@@ -29,7 +29,7 @@ func _to_string() -> String:
 	return "{0}:{1}:{2}".format([hour, minute, second])
 
 ## Converts the timestamp into a dictionary.
-func _to_dict() -> Dictionary[String, int]:
+func to_dict() -> Dictionary[String, int]:
 	return {
 		"hour" = hour,
 		"minute" = minute,

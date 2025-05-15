@@ -30,7 +30,7 @@ func _to_string() -> String:
 	return "{0}-{1}-{2}".format([year, month, day])
 
 ## Converts the datestamp into a dictionary.
-func _to_dict() -> Dictionary[String, int]:
+func to_dict() -> Dictionary[String, int]:
 	return {
 		"year" = year,
 		"month" = month,
