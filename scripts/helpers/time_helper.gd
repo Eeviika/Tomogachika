@@ -2,6 +2,16 @@ class_name TimeHelper
 extends RefCounted
 
 
+static func is_between_time(current_time: Timestamp, start_time: Timestamp, end_time: Timestamp) -> bool:
+	return (
+		TimeHelper.is_past_time(
+			current_time, start_time
+		)
+		or TimeHelper.is_before_time(
+			current_time, end_time
+		)
+	)
+
 static func _is_valid_time_dict(time_dict) -> bool:
 	if not "hour" in time_dict and "minute" in time_dict and "second" in time_dict:
 		return false
