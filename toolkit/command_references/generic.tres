@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ToolkitCommandRef" load_steps=2 format=3 uid="uid://cwafcrwy5uvvv"]
+
+[ext_resource type="Script" uid="uid://bt82yxt31xas0" path="res://toolkit/scripts/command_reference.gd" id="1_mhpsy"]
+
+[resource]
+script = ExtResource("1_mhpsy")
+command_syntax = ""
+command_description = ""
+callable_name = &"generic"
+minimum_arguments = 0
+maximum_arguments = 0
+metadata/_custom_type_script = "uid://bt82yxt31xas0"

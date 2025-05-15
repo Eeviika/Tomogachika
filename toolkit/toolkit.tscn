@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dgh85j0guxvp"]
+
+[ext_resource type="Script" uid="uid://cgiragw8lqdxo" path="res://toolkit/toolkit.gd" id="1_ndt0p"]
+
+[node name="Toolkit" type="Node"]
+script = ExtResource("1_ndt0p")
