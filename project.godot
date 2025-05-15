@@ -11,7 +11,8 @@ config_version=5
 [application]
 
 config/name="Tomogachika"
-run/main_scene="uid://byis133ykigb7"
+config/version="0.0.1"
+run/main_scene="uid://rbochwgnciav"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="IkaMakesGames/tomogachika"
 config/features=PackedStringArray("4.4", "GL Compatibility")
@@ -22,12 +23,17 @@ boot_splash/use_filter=false
 boot_splash/image="uid://c7v64yve3dtsj"
 config/icon="uid://c7v64yve3dtsj"
 
+[autoload]
+
+SystemTray="*res://scenes/autoloads/system_tray.tscn"
+
 [display]
 
 window/size/viewport_width=720
 window/size/viewport_height=720
 window/size/sharp_corners=true
 window/stretch/mode="viewport"
+window/stretch/scale_mode="integer"
 
 [editor_plugins]
 
@@ -40,7 +46,8 @@ folder_colors={
 "res://content/": "orange",
 "res://resources/": "yellow",
 "res://scenes/": "green",
-"res://scripts/": "purple"
+"res://scripts/": "purple",
+"res://toolkit/": "pink"
 }
 
 [game]
@@ -54,6 +61,7 @@ theme/custom_font="uid://d4dpr25c8lta0"
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 environment/defaults/default_clear_color=Color(0.136826, 0.136826, 0.136826, 1)
